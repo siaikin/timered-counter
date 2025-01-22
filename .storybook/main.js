@@ -3,7 +3,7 @@ const config = {
   framework: {
     name: '@web/storybook-framework-web-components',
   },
-  addons: ['@storybook/addon-essentials'],
+  addons: ['@storybook/addon-essentials', '@chromatic-com/storybook'],
 };
 
 export default config;
