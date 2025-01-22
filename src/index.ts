@@ -1,1 +1,1 @@
-export { TdCounter } from './TdCounter.js';
+export { TimeredCounter } from './TimeredCounter.js';

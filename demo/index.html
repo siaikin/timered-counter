@@ -6,25 +6,35 @@
   <style>
     body {
       background: #fafafa;
-    }
+  , 10  }
   </style>
 </head>
 <body>
-  <div id="demo"></div>
+  <div id="demo" style="font-size: 36px; text-align: center;">
+    <timered-counter value="0">
+    </timered-counter>
+    <button onclick="add()">Add</button>
+  </div>
 
   <script type="module">
-    import { html, render } from 'lit';
-    import '../dist/src/td-counter.js';
+    import '../dist/src/index.js';
 
-    const header = 'Hello owc World!';
-    render(
-      html`
-        <td-counter .header=${header}>
-          some light-dom
-        </td-counter>
-      `,
-      document.querySelector('#demo')
-    );
+    // render(
+    //   html`
+    //     <timered-counter value="${}">
+    //       some light-dom
+    //     </timered-counter>
+    //   `,
+    //   document.querySelector('#demo')
+    // );
   </script>
+<script type="application/ecmascript">
+  function add() {
+    const counter = document.querySelector('timered-counter');
+    // counter.setAttribute('value', (Number.parseInt(counter.value, 10) + 1).toString(10));
+    counter.value = Math.floor(Math.random() * 1000000)
+  }
+
+</script>
 </body>
 </html>

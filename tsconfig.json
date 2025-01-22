@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmitOnError": true,
-    "lib": ["es2021", "dom", "DOM.Iterable"],
+    "lib": ["es2021", "ES2022.Intl", "dom", "DOM.Iterable"],
     "strict": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
@@ -16,7 +16,8 @@
     "rootDir": "./",
     "declaration": true,
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "include": ["**/*.ts"]
 }

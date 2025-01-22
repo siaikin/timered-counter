@@ -1,60 +1,51 @@
-import { html, TemplateResult } from 'lit';
-import '../src/td-counter.js';
+import { html } from 'lit';
+import {
+  Meta,
+  StoryObj,
+  setCustomElementsManifest,
+} from '@storybook/web-components';
+import '../src/index.js';
+import customElementsManifest from '../custom-elements.json' with { type: 'json' };
 
-export default {
-  title: 'TdCounter',
-  component: 'td-counter',
-  argTypes: {
-    header: { control: 'text' },
-    counter: { control: 'number' },
-    textColor: { control: 'color' },
+setCustomElementsManifest(customElementsManifest);
+
+const meta: Meta = {
+  title: 'TimeredCounter',
+  component: 'timered-counter',
+  tags: ['autodocs'],
+  render: () => html`<timered-counter value="0"></timered-counter>`,
+};
+export default meta;
+
+type Story = StoryObj;
+
+const Simple: Story = {
+  args: {
+    value: 0,
+    keyframes: {},
   },
 };
 
-interface Story<T> {
-  (args: T): TemplateResult;
-  args?: Partial<T>;
-  argTypes?: Record<string, unknown>;
-}
+// Simple.parameters = {
+//   controls: { include: Object.keys(Simple.args ?? {}) },
+// };
+export { Simple };
 
-interface ArgTypes {
-  header?: string;
-  counter?: number;
-  textColor?: string;
-  slot?: TemplateResult;
-}
-
-const Template: Story<ArgTypes> = ({
-  header = 'Hello world',
-  counter = 5,
-  textColor,
-  slot,
-}: ArgTypes) => html`
-  <td-counter
-    style="--td-counter-text-color: ${textColor || 'black'}"
-    .header=${header}
-    .counter=${counter}
-  >
-    ${slot}
-  </td-counter>
-`;
-
-export const Regular = Template.bind({});
-
-export const CustomHeader = Template.bind({});
-CustomHeader.args = {
-  header: 'My header',
-};
-
-export const CustomCounter = Template.bind({});
-CustomCounter.args = {
-  counter: 123456,
-};
-
-export const SlottedContent = Template.bind({});
-SlottedContent.args = {
-  slot: html`<p>Slotted content</p>`,
-};
-SlottedContent.argTypes = {
-  slot: { table: { disable: true } },
-};
+//
+// export const CustomHeader = Template.bind({});
+// CustomHeader.args = {
+//   header: 'My header',
+// };
+//
+// export const CustomCounter = Template.bind({});
+// CustomCounter.args = {
+//   counter: 123456,
+// };
+//
+// export const SlottedContent = Template.bind({});
+// SlottedContent.args = {
+//   slot: html`<p>Slotted content</p>`,
+// };
+// SlottedContent.argTypes = {
+//   slot: { table: { disable: true } },
+// };
