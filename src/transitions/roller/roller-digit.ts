@@ -1,12 +1,19 @@
 import { html, LitElement, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
-import { isEmpty, isNullish, merge, omit } from 'remeda';
+import { isEmpty, isNullish, isString, merge, omit, range } from 'remeda';
 import { classMap } from 'lit/directives/class-map.js';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import { PartDataDigit } from '../../types/group.js';
 import { rollerDigitStyles } from './styles.js';
+import * as EasingFunctions from '../../easing/index.js';
+
+class RollerDigitAnimationEvent extends Event {
+  // constructor(type: string, eventInitDict?: EventInit) {
+  //   super(type, eventInitDict);
+  // }
+}
 
 @customElement('timered-counter-roller-digit')
 export class TimeredCounterRollerDigit extends LitElement {
@@ -201,6 +208,8 @@ export class TimeredCounterRollerDigit extends LitElement {
   async startAnimation() {
     if (isNullish(this.rollList)) return;
 
+    this.__emitAnimationStart();
+
     const anmOptions = merge(
       { duration: 1000, iterations: 1, easing: 'ease-out', fill: 'forwards' },
       this.animationOptions,
@@ -217,22 +226,29 @@ export class TimeredCounterRollerDigit extends LitElement {
      * 尝试从 `PennerEasingFunctions` 中获取对应的 easing 函数
      */
     // {
-    // if (
-    //   isString(anmOptions.easing) &&
-    //   PennerEasingFunctions[
-    //     anmOptions.ease as keyof typeof PennerEasingFunctions
-    //     ]
-    // ) {
-    //   anmOptions.ease =
-    //     PennerEasingFunctions[
-    //       anmOptions.ease as keyof typeof PennerEasingFunctions
-    //       ];
-    // }
+    if (
+      isString(anmOptions.easing) &&
+      EasingFunctions[anmOptions.easing as keyof typeof EasingFunctions]
+    ) {
+      const func =
+        EasingFunctions[anmOptions.easing as keyof typeof EasingFunctions];
+      anmOptions.easing = `linear(${range(0, 64)
+        .map((_, i) => func(i / 63))
+        .join(',')})`;
+    }
     // }
 
     try {
-      this.animation?.cancel();
+      this.clearAnimation();
       this.animation = this.rollList.animate(keyframes, anmOptions);
+
+      this.animation.addEventListener(
+        'finish',
+        () => this.__emitAnimationEnd(),
+        {
+          once: true,
+        },
+      );
 
       // /**
       //  * 动画播放完成或被其他动画中断都会使得 `finished` resolve.
@@ -252,7 +268,25 @@ export class TimeredCounterRollerDigit extends LitElement {
       //   // this.animation.cancel();
       // }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
+  }
+
+  clearAnimation() {
+    this.animation?.removeEventListener('finish', this.__emitAnimationEnd);
+    this.animation?.cancel();
+  }
+
+  private __emitAnimationStart() {
+    this.dispatchEvent(
+      new RollerDigitAnimationEvent('roller-digit-animation-start'),
+    );
+  }
+
+  private __emitAnimationEnd() {
+    this.dispatchEvent(
+      new RollerDigitAnimationEvent('roller-digit-animation-end'),
+    );
   }
 }

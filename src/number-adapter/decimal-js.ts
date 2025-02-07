@@ -1,12 +1,16 @@
-import { Decimal } from "decimal.js";
-import { NumberAdapter } from "./types.js";
+import { Decimal } from 'decimal.js';
+import { isString } from 'remeda';
+import { NumberAdapter } from './types.js';
+
+const numberRegex = /^-?\d+(\.\d+)?$/;
 
 const DecimalJsAdapter: (config?: Decimal.Config) => NumberAdapter<Decimal> = (
-  config = { precision: 1e3 }
+  config = { precision: 1e3 },
 ) => {
   const InnerDecimal = Decimal.clone(config);
   return {
     create(value: string | number): Decimal {
+      if (isString(value) && !numberRegex.test(value)) value = 0;
       return new InnerDecimal(value);
     },
     add(a, b) {

@@ -1,8 +1,17 @@
 import { Constructor } from 'type-fest';
 import { property } from 'lit/decorators.js';
-import { PartDigitGetter, PartDigitValue } from '../types/group.js';
-import { extractPartDigitOption } from '../utils/extract-group-option.js';
+import { isDeepEqual } from 'remeda';
+import {
+  GroupGetterOptions,
+  PartDigitGetter,
+  PartDigitValue,
+} from '../types/group.js';
+import {
+  extractPartDigitOption,
+  mergePartDigitOption,
+} from '../utils/extract-group-option.js';
 import { CounterPartsMixin } from './counter-parts.js';
+import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
 export interface PartDataOptions {
   sampleCount: number;
@@ -27,7 +36,7 @@ export declare class CounterAnimationMixinInterface {
 }
 
 export const CounterAnimationMixin = <
-  V,
+  V extends AvailableNumberAdapterValueType,
   T extends ReturnType<typeof CounterPartsMixin<V>> = ReturnType<
     typeof CounterPartsMixin<V>
   >,
@@ -38,36 +47,66 @@ export const CounterAnimationMixin = <
     /**
      * 传递给 Web Animations API 的选项.
      */
-    @property({ type: Object, attribute: 'animation-options' })
+    @property({ type: Object, attribute: 'animation-options', reflect: true })
     animationOptions: PartDigitValue<KeyframeAnimationOptions> = {};
 
     animationOptionsDynamic?: PartDigitGetter<KeyframeAnimationOptions>;
 
+    private cachedAnimationOptions: (KeyframeAnimationOptions | undefined)[][] =
+      [];
+
     extractAnimationOptions() {
-      return extractPartDigitOption(
-        this.animationOptionsDynamic ?? this.animationOptions,
-        {
-          data: this.parts,
-          direction: this.direction,
-          value: [this.value, this.oldValue],
-        },
+      const getterOptions: GroupGetterOptions = {
+        preprocessData: this.partPreprocessDataList,
+        data: this.parts,
+        direction: this.direction,
+        value: [this.value, this.oldValue],
+      };
+      const result = mergePartDigitOption(
+        extractPartDigitOption(this.animationOptions ?? {}, getterOptions),
+        extractPartDigitOption(
+          this.animationOptionsDynamic ?? {},
+          getterOptions,
+        ),
       );
+
+      if (!isDeepEqual(this.cachedAnimationOptions, result)) {
+        this.cachedAnimationOptions = result;
+      }
+
+      return this.cachedAnimationOptions;
     }
 
     /**
      * 传递给 Web Animations API 的关键帧配置.
      */
-    @property({ type: Object, attribute: 'keyframes' })
+    @property({ type: Object, attribute: 'keyframes', reflect: true })
     keyframes: PartDigitValue<PropertyIndexedKeyframes> = {};
 
     keyframesDynamic?: PartDigitGetter<PropertyIndexedKeyframes>;
 
+    private cachedKeyframes: (PropertyIndexedKeyframes | undefined)[][] = [];
+
     extractKeyframes() {
-      return extractPartDigitOption(this.keyframesDynamic ?? this.keyframes, {
+      const getterOptions: GroupGetterOptions = {
+        preprocessData: this.partPreprocessDataList,
         data: this.parts,
         direction: this.direction,
         value: [this.value, this.oldValue],
-      });
+      };
+      const result = mergePartDigitOption(
+        extractPartDigitOption(this.keyframes ?? {}, getterOptions),
+        extractPartDigitOption(this.keyframesDynamic ?? {}, getterOptions),
+      );
+
+      if (!isDeepEqual(this.cachedKeyframes, result)) {
+        this.cachedKeyframes = result as (
+          | PropertyIndexedKeyframes
+          | undefined
+        )[][];
+      }
+
+      return this.cachedKeyframes;
     }
   }
 

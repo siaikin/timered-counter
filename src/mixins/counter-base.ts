@@ -3,25 +3,19 @@ import { property, state } from 'lit/decorators.js';
 import { isNonNullish, isNullish, isString } from 'remeda';
 import { Constructor } from 'type-fest';
 import {
-  BuildInNumberAdapter,
   NumberAdapter,
+  AvailableNumberAdapterValueType,
 } from '../number-adapter/index.js';
-import {
-  BuildInStringAdapter,
-  StringAdapter,
-} from '../string-adapter/index.js';
+import { StringAdapter } from '../string-adapter/index.js';
+import { CounterAdapter } from '../counter-adapter.js';
 
-// const numberAdapters = {
-//   number: BuildInNumberAdapter(),
-//   'decimal.js': DecimalJsAdapter(),
-// } as const;
-// const stringAdapters = {
-//   string: BuildInStringAdapter(),
-//   'intl-segmenter': BuildInIntlSegmenterAdapter(),
-//   'grapheme-splitter': GraphemeSplitterAdapter(),
-// } as const;
+export declare class CounterBaseMixinInterface<
+  V extends AvailableNumberAdapterValueType,
+> {
+  static NUMBER_ADAPTER: NumberAdapter;
 
-export declare class CounterBaseMixinInterface<V> {
+  static STRING_ADAPTER: StringAdapter;
+
   value: V;
 
   oldValue: V;
@@ -42,48 +36,79 @@ export declare class CounterBaseMixinInterface<V> {
 }
 
 export const CounterBaseMixin = <
-  V,
+  V extends AvailableNumberAdapterValueType,
   T extends Constructor<LitElement> = Constructor<LitElement>,
 >(
   superClass: T,
 ) => {
   class CounterBaseMixinClass extends superClass {
-    /**
-     * 数字适配器, 有以下两种:
-     * 1. BuildInNumberAdapter(默认): 使用内置 number 进行计算.
-     * 2. DecimalJsAdapter: 使用 Decimal.js 进行计算.
-     *
-     * 详细信息请查看[字符长度限制](/guide/optional-dependencies#字符长度限制)章节.
-     *
-     * @default BuildInNumberAdapter
-     */
-    static NUMBER_ADAPTER: NumberAdapter = BuildInNumberAdapter();
+    private __value: V = CounterAdapter.NUMBER_ADAPTER.create(0);
 
-    /**
-     * 字符串适配器, 有以下两种:
-     * 1. BuildInStringAdapter(默认): 使用内置 string 进行字符串处理.
-     * 2. BuildInIntlSegmenterAdapter: 使用 Intl.Segmenter 进行字符串处理. 能够支持 emoji, 字符集.
-     * 3. GraphemeSplitterAdapter: 使用 grapheme-splitter 进行字符串处理. 能够支持 emoji, 字符集.
-     *
-     * 详细信息请查看[支持 emoji 分词](/guide/optional-dependencies#支持-emoji-分词)章节.
-     *
-     * @default BuildInStringAdapter
-     */
-    static STRING_ADAPTER: StringAdapter = BuildInStringAdapter();
+    @property({
+      attribute: 'value',
+      reflect: true,
+      converter: {
+        toAttribute: CounterAdapter.VALUE_CONVERTER.toAttribute,
+      },
+      noAccessor: true,
+    })
+    get value() {
+      return this.numberAdapter.create(this.__value);
+    }
 
-    @property({ attribute: 'value', reflect: true })
-    value: V = '' as unknown as V;
+    set value(value: V) {
+      value = CounterAdapter.NUMBER_ADAPTER.create(
+        isNullish(value) || (isString(value) && value.trim() === '')
+          ? 0
+          : value,
+      );
 
-    @property({ attribute: 'old-value', reflect: true })
-    oldValue: V = '' as unknown as V;
+      const old = this.__value;
+      this.__value = value;
+      this.requestUpdate('value', old);
+    }
+    // value: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
+
+    private __oldValue: V = CounterAdapter.NUMBER_ADAPTER.create(0);
+
+    @property({
+      attribute: 'old-value',
+      reflect: true,
+      converter: CounterAdapter.VALUE_CONVERTER,
+    })
+    get oldValue() {
+      return this.numberAdapter.create(this.__oldValue);
+    }
+
+    set oldValue(value: V) {
+      const old = this.__oldValue;
+      this.__oldValue = value;
+      this.requestUpdate('oldValue', old);
+    }
+    // oldValue: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
+
+    private __initialValue: V = CounterAdapter.NUMBER_ADAPTER.create(0);
 
     /**
      * 如果初始值被设置, 组件初始化时会使用该值而不是 `value`, 然后在初始化完成后, 将内部值更新为 `value`.
      *
      * 这可以实现在初始化完成后启动动画效果非常有用.
      */
-    @property({ attribute: 'initial-value', reflect: true })
-    initialValue: V = '' as unknown as V;
+    @property({
+      attribute: 'initial-value',
+      reflect: true,
+      converter: CounterAdapter.VALUE_CONVERTER,
+    })
+    get initialValue() {
+      return this.numberAdapter.create(this.__initialValue);
+    }
+
+    set initialValue(value: V) {
+      const old = this.__initialValue;
+      this.__initialValue = value;
+      this.requestUpdate('initialValue', old);
+    }
+    // initialValue: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
 
     /**
      * 自定义本地化配置, 否则从浏览器环境中获取.
@@ -114,19 +139,27 @@ export const CounterBaseMixin = <
     @state()
     direction: 'up' | 'down' = 'up';
 
-    numberAdapter = CounterBaseMixinClass.NUMBER_ADAPTER;
+    numberAdapter: NumberAdapter;
 
-    stringAdapter = CounterBaseMixinClass.STRING_ADAPTER;
+    stringAdapter: StringAdapter;
 
     private isFirstUpdate = true;
+
+    constructor(...args: any[]) {
+      super(...args);
+
+      // @ts-ignore
+      this.numberAdapter = CounterAdapter.NUMBER_ADAPTER;
+      // @ts-ignore
+      this.stringAdapter = CounterAdapter.STRING_ADAPTER;
+    }
 
     connectedCallback() {
       super.connectedCallback();
 
-      this.oldValue =
-        isNonNullish(this.initialValue) && this.initialValue !== ''
-          ? this.initialValue
-          : this.value;
+      this.oldValue = isNonNullish(this.initialValue)
+        ? this.initialValue
+        : this.value;
     }
 
     willUpdate(changedProperties: PropertyValues<this>) {

@@ -1,6 +1,8 @@
 import { Constructor } from 'type-fest';
 import { property } from 'lit/decorators.js';
+import { isDeepEqual } from 'remeda';
 import {
+  GroupGetterOptions,
   PartDigitCellGetter,
   PartDigitCellValue,
   PartDigitGetter,
@@ -12,16 +14,12 @@ import {
   extractPartDigitCellOption,
   extractPartDigitOption,
   extractPartOption,
+  mergePartDigitCellOption,
+  mergePartDigitOption,
+  mergePartOption,
 } from '../utils/extract-group-option.js';
 import { CounterPartsMixin } from './counter-parts.js';
-
-export interface PartDataOptions {
-  sampleCount: number;
-  digitToChar: Record<string | number, string>;
-  decimalSeparator: string;
-  minPlaces: [number | undefined, number | undefined];
-  fillChar: string;
-}
+import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
 export declare class CounterStylesMixinInterface {
   cellStyles: PartDigitCellValue<Partial<CSSStyleDeclaration>>;
@@ -46,7 +44,7 @@ export declare class CounterStylesMixinInterface {
 }
 
 export const CounterStylesMixin = <
-  V,
+  V extends AvailableNumberAdapterValueType,
   T extends ReturnType<typeof CounterPartsMixin<V>> = ReturnType<
     typeof CounterPartsMixin<V>
   >,
@@ -58,57 +56,92 @@ export const CounterStylesMixin = <
      * 对 `cell` 部分的样式进行设置. 传入的对象将被直接应用到 `cell` 的 `style` 上.
      * 你还可以使用 `cellStylesDynamic` 来动态设置样式.
      */
-    @property({ type: Object, attribute: 'cell-styles' })
+    @property({ type: Object, attribute: 'cell-styles', reflect: true })
     cellStyles: PartDigitCellValue<Partial<CSSStyleDeclaration>> = {};
 
     cellStylesDynamic?: PartDigitCellGetter<Partial<CSSStyleDeclaration>>;
 
+    private cachedCellStyles: Partial<CSSStyleDeclaration | undefined>[][][] =
+      [];
+
     extractCellStyles() {
-      return extractPartDigitCellOption(
-        this.cellStylesDynamic ?? this.cellStyles,
-        {
-          data: this.parts,
-          direction: this.direction,
-          value: [this.value, this.oldValue],
-        },
+      const getterOptions: GroupGetterOptions = {
+        preprocessData: this.partPreprocessDataList,
+        data: this.parts,
+        direction: this.direction,
+        value: [this.value, this.oldValue],
+      };
+      const result = mergePartDigitCellOption(
+        extractPartDigitCellOption(this.cellStyles ?? {}, getterOptions),
+        extractPartDigitCellOption(this.cellStylesDynamic ?? {}, getterOptions),
       );
+
+      if (!isDeepEqual(this.cachedCellStyles, result)) {
+        this.cachedCellStyles = result;
+      }
+
+      return this.cachedCellStyles;
     }
 
     /**
      * 与 `cell` 类似, 但是是对 `digit` 部分的样式进行设置.
      * 你还可以使用 `digitStylesDynamic` 来动态设置样式.
      */
-    @property({ type: Object, attribute: 'digit-styles' })
+    @property({ type: Object, attribute: 'digit-styles', reflect: true })
     digitStyles: PartDigitValue<Partial<CSSStyleDeclaration>> = {};
 
     digitStylesDynamic?: PartDigitGetter<Partial<CSSStyleDeclaration>>;
 
+    private cachedDigitStyles: Partial<CSSStyleDeclaration | undefined>[][] =
+      [];
+
     extractDigitStyles() {
-      return extractPartDigitOption(
-        this.digitStylesDynamic ?? this.digitStyles,
-        {
-          data: this.parts,
-          direction: this.direction,
-          value: [this.value, this.oldValue],
-        },
+      const getterOptions: GroupGetterOptions = {
+        preprocessData: this.partPreprocessDataList,
+        data: this.parts,
+        direction: this.direction,
+        value: [this.value, this.oldValue],
+      };
+      const result = mergePartDigitOption(
+        extractPartDigitOption(this.digitStyles ?? {}, getterOptions),
+        extractPartDigitOption(this.digitStylesDynamic ?? {}, getterOptions),
       );
+
+      if (!isDeepEqual(this.cachedDigitStyles, result)) {
+        this.cachedDigitStyles = result;
+      }
+
+      return this.cachedDigitStyles;
     }
 
     /**
      * 与 `cell` 类似, 但是是对 `part` 部分的样式进行设置.
      * 你还可以使用 `partStylesDynamic` 来动态设置样式.
      */
-    @property({ type: Object, attribute: 'part-styles' })
+    @property({ type: Object, attribute: 'part-styles', reflect: true })
     partStyles: PartValue<Partial<CSSStyleDeclaration>> = {};
 
     partStylesDynamic?: PartGetter<Partial<CSSStyleDeclaration>>;
 
+    private cachedPartStyles: Partial<CSSStyleDeclaration | undefined>[] = [];
+
     extractPartStyles() {
-      return extractPartOption(this.partStylesDynamic ?? this.partStyles, {
+      const getterOptions: GroupGetterOptions = {
+        preprocessData: this.partPreprocessDataList,
         data: this.parts,
         direction: this.direction,
         value: [this.value, this.oldValue],
-      });
+      };
+      const result = mergePartOption(
+        extractPartOption(this.partStyles ?? {}, getterOptions),
+        extractPartOption(this.partStylesDynamic ?? {}, getterOptions),
+      );
+
+      if (!isDeepEqual(this.cachedPartStyles, result)) {
+        this.cachedPartStyles = result;
+      }
+
+      return this.cachedPartStyles;
     }
 
     /**
@@ -121,7 +154,7 @@ export const CounterStylesMixin = <
      * @example "linear-gradient(90deg, red, blue)" 红蓝渐变
      * @example "url('https://example.com/image.png')" 图片背景
      */
-    @property({ type: String, attribute: 'text-color' })
+    @property({ type: String, reflect: true })
     color: string = 'inherit';
   }
 

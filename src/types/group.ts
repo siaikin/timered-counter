@@ -1,3 +1,5 @@
+import { PartPreprocessedData } from '../utils/preprocess-part-data.js';
+
 export interface PartDataDigit {
   data: string[];
   /**
@@ -49,6 +51,7 @@ export interface GroupGetterOptions {
    * 导致这次滚动发生的值. [新值, 旧值].
    */
   value: [unknown, unknown];
+  preprocessData: PartPreprocessedData[][];
 }
 export type GroupGetter<T> = (options: GroupGetterOptions) => GroupValue<T>;
 export type GroupValueOrGetter<T> = GroupValue<T> | GroupGetter<T>;

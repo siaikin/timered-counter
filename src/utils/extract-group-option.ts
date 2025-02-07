@@ -1,4 +1,4 @@
-import { isArray, isFunction } from 'remeda';
+import { isArray, isFunction, merge } from 'remeda';
 import {
   GroupValueOrGetter,
   PartValueOrGetter,
@@ -95,4 +95,56 @@ export function extractPartDigitCellOption<
   }
 
   return result;
+}
+
+export function mergeGroupOption<
+  P extends GroupValueOrGetter<unknown>,
+  Result = ExtractGroupValue<P>,
+>(data: Result, source: Result): Result {
+  return merge(data ?? {}, source ?? {}) as Result;
+}
+
+export function mergePartOption<
+  P extends PartValueOrGetter<unknown>,
+  Result = ExtractPartValue<P>,
+>(data: Result[] = [], source: Result[] = []): Result[] {
+  const keys = Array.from(
+    new Set(Object.keys(data).concat(Object.keys(source))),
+  );
+  for (const key of keys) {
+    const index = Number.parseInt(key, 10);
+    data[index] = mergeGroupOption(data[index], source[index]);
+  }
+
+  return data;
+}
+
+export function mergePartDigitOption<
+  P extends PartDigitValueOrGetter<unknown>,
+  Result = ExtractPartDigitValue<P>,
+>(data: Result[][] = [], source: Result[][] = []): Result[][] {
+  const keys = Array.from(
+    new Set(Object.keys(data).concat(Object.keys(source))),
+  );
+  for (const key of keys) {
+    const index = Number.parseInt(key, 10);
+    data[index] = mergePartOption(data[index], source[index]);
+  }
+
+  return data;
+}
+
+export function mergePartDigitCellOption<
+  P extends PartDigitCellValueOrGetter<unknown>,
+  Result = ExtractPartDigitCellValue<P>,
+>(data: Result[][][] = [], source: Result[][][] = []): Result[][][] {
+  const keys = Array.from(
+    new Set(Object.keys(data).concat(Object.keys(source))),
+  );
+  for (const key of keys) {
+    const index = Number.parseInt(key, 10);
+    data[index] = mergePartDigitOption(data[index], source[index]);
+  }
+
+  return data;
 }

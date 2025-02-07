@@ -11,9 +11,10 @@
 </head>
 <body>
   <div id="demo" style="font-size: 36px; text-align: center;">
-    <timered-counter value="0">
+    <timered-counter value="10000">
     </timered-counter>
     <button onclick="add()">Add</button>
+    <button onclick="sub()">Sub</button>
   </div>
 
   <script type="module">
@@ -31,8 +32,10 @@
 <script type="application/ecmascript">
   function add() {
     const counter = document.querySelector('timered-counter');
+
+    counter.value = 10;
     // counter.setAttribute('value', (Number.parseInt(counter.value, 10) + 1).toString(10));
-    counter.value = Math.floor(Math.random() * 1000000)
+    // counter.value = Math.floor(Math.random() * 1000000)
   }
 
 </script>

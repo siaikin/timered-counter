@@ -1,15 +1,27 @@
 import { html, LitElement, PropertyValues } from 'lit';
-import { customElement, query, queryAll, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
+import { isDeepEqual, isNumber, values, clone } from 'remeda';
+import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
 import { CounterStylesMixin } from './mixins/counter-styles.js';
 import { CounterPartsMixin } from './mixins/counter-parts.js';
 import { CounterBaseMixin } from './mixins/counter-base.js';
 import { timeredCounterstyles } from './styles/timered-counter-styles.js';
 import { CounterAnimationMixin } from './mixins/counter-animation.js';
 import './transitions/roller/index.js';
+import { CounterAiraMixin } from './mixins/counter-aira.js';
+import { mergePartDigitOption } from './utils/extract-group-option.js';
+
+class TimeredCounterAnimationEvent extends Event {
+  // constructor(type: string, eventInitDict?: EventInit) {
+  //   super(type, eventInitDict);
+  // }
+}
 
 @customElement('timered-counter')
-export class TimeredCounter extends CounterAnimationMixin(
-  CounterStylesMixin(CounterPartsMixin(CounterBaseMixin(LitElement))),
+export class TimeredCounter extends CounterAiraMixin(
+  CounterAnimationMixin(
+    CounterStylesMixin(CounterPartsMixin(CounterBaseMixin(LitElement))),
+  ),
 ) {
   static styles = [timeredCounterstyles];
 
@@ -21,8 +33,8 @@ export class TimeredCounter extends CounterAnimationMixin(
   @query('.counter-parts')
   partsContainer: HTMLElement | undefined;
 
-  @queryAll('[data-part-id]')
-  backgroundClippedPartDigitElements: NodeList | undefined;
+  @query('timered-counter-roller')
+  partsAnimationContainer: HTMLElement | undefined;
 
   @query('.counter__prefix')
   prefixContainer: HTMLElement | undefined;
@@ -30,16 +42,21 @@ export class TimeredCounter extends CounterAnimationMixin(
   @query('.counter__suffix')
   suffixContainer: HTMLElement | undefined;
 
+  private cachedDigitStyles: Partial<CSSStyleDeclaration>[][] = [];
+
   extractDigitStyles(): Partial<CSSStyleDeclaration>[][] {
     const styles = super.extractDigitStyles();
-    const colorStyle = this.__generatePartDigitsColorStyle();
 
-    return styles.map((partStyles, partIndex) =>
-      partStyles.map((digitStyles, digitIndex) => ({
-        ...digitStyles,
-        ...colorStyle[partIndex]?.[digitIndex],
-      })),
-    );
+    this.__updatePartDigitsColorStyles();
+    const colorStyles = this.__partDigitsColorStyles;
+
+    const newStyles = mergePartDigitOption(clone(styles), colorStyles);
+
+    if (!isDeepEqual(this.cachedDigitStyles, newStyles)) {
+      this.cachedDigitStyles = newStyles;
+    }
+
+    return this.cachedDigitStyles;
   }
 
   constructor() {
@@ -68,8 +85,15 @@ export class TimeredCounter extends CounterAnimationMixin(
     const animationOptions = this.extractAnimationOptions();
     const keyframes = this.extractKeyframes();
 
-    return html`<span class="timered-counter">
-      <span class="counter__prefix">
+    return html`<span class="timered-counter" aria-hidden="true">
+      <span
+        class="counter__prefix"
+        data-part-id="-1"
+        data-digit-id="0"
+        style=${styleMap(
+          (this.__partDigitsColorStyles[-1]?.[0] ?? {}) as StyleInfo,
+        )}
+      >
         <slot name="prefix"></slot>
       </span>
       <span class="counter-parts">
@@ -82,15 +106,26 @@ export class TimeredCounter extends CounterAnimationMixin(
           .digitStyles=${digitStyles}
           .partStyles=${partStyles}
           .direction=${this.direction}
+          @roller-animation-start=${this.__emitTimeredCounterAnimationStart}
+          @roller-animation-end=${this.__emitTimeredCounterAnimationEnd}
         ></timered-counter-roller>
       </span>
-      <span class="counter__suffix">
+      <span
+        class="counter__suffix"
+        data-part-id="-2"
+        data-digit-id="0"
+        style=${styleMap(
+          (this.__partDigitsColorStyles[-2]?.[0] ?? {}) as StyleInfo,
+        )}
+      >
         <slot name="suffix"></slot>
       </span>
     </span>`;
   }
 
-  private __generatePartDigitsColorStyle() {
+  private __partDigitsColorStyles: Partial<CSSStyleDeclaration>[][] = [];
+
+  private __updatePartDigitsColorStyles() {
     const result: Partial<CSSStyleDeclaration>[][] = [];
 
     const container = this.partsContainer;
@@ -103,43 +138,39 @@ export class TimeredCounter extends CounterAnimationMixin(
       color,
     } = this;
     const partDigitElements = Array.from(
-      this.backgroundClippedPartDigitElements?.values() ?? [],
+      this.partsAnimationContainer?.shadowRoot
+        ?.querySelectorAll('[data-part-id]')
+        .values() ?? [],
     ) as HTMLElement[];
-
-    if (!container || !containerRect) {
-      return result;
-    }
 
     /**
      * 当某次更新**将**会导致 DOM 宽高发生变化时(如: 滚动数字的位数增加/减少会导致宽度变化),
      * 需要跳过这次更新然后等待 DOM 宽高变化完成才能更新(宽高变化后将通过 {@link containerRect} 触发).
      */
-    // try {
-    //   if (!containerValue || !containerRectValue) {
-    //     return;
+    if (!container || !containerRect) {
+      return;
+    }
+    /**
+     * 比较 {@link data} 前后不同判断是否导致 DOM 宽度会发生变化.
+     */
+    // if (parts.length !== oldParts.length) {
+    //   this.requestUpdate();
+    //   return result;
+    // }
+    // for (let i = 0; i < parts.length; i++) {
+    //   if (parts[i].digits.length !== oldParts[i].digits.length) {
+    //     this.requestUpdate();
+    //     return result;
     //   }
-    //   /**
-    //    * 比较 {@link data} 前后不同判断是否导致 DOM 宽度会发生变化.
-    //    */
-    //   if (dataValue.length !== previousDataValue.length) {
-    //     return;
-    //   }
-    //   for (let i = 0; i < dataValue.length; i++) {
-    //     if (dataValue[i].digits.length !== previousDataValue[i].digits.length) {
-    //       return;
-    //     }
-    //   }
-    // } finally {
-    //   previousData.value = data.value;
     // }
 
-    if (prefixContainer) partDigitElements.unshift(prefixContainer);
-    if (suffixContainer) partDigitElements.push(suffixContainer);
+    if (prefixContainer) partDigitElements[-1] = prefixContainer;
+    if (suffixContainer) partDigitElements[-2] = suffixContainer;
 
-    for (const el of partDigitElements) {
-      const partId = Number.parseInt(el.dataset.partId ?? '0', 10);
-      const digitId = Number.parseInt(el.dataset.digitId ?? '0', 10);
-      if (Number.isNaN(partId) || Number.isNaN(digitId)) {
+    for (const el of values(partDigitElements)) {
+      const partId = Number.parseInt(el.dataset.partId ?? '-1', 10);
+      const digitId = Number.parseInt(el.dataset.digitId ?? '-1', 10);
+      if (!isNumber(partId) || !isNumber(digitId)) {
         throw new Error(
           'The data-part-id and data-digit-id attributes are required.',
         );
@@ -163,10 +194,24 @@ export class TimeredCounter extends CounterAnimationMixin(
         };
       } else {
         result[partId][digitId] = {};
+        // todo error event
+        // eslint-disable-next-line no-console
         console.warn(new Error('The color property is not supported.'));
       }
     }
 
-    return result;
+    this.__partDigitsColorStyles = result;
+  }
+
+  private __emitTimeredCounterAnimationStart() {
+    this.dispatchEvent(
+      new TimeredCounterAnimationEvent('timered-counter-animation-start'),
+    );
+  }
+
+  private __emitTimeredCounterAnimationEnd() {
+    this.dispatchEvent(
+      new TimeredCounterAnimationEvent('timered-counter-animation-end'),
+    );
   }
 }

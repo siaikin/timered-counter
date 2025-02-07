@@ -1,7 +1,7 @@
 import { PropertyValues } from 'lit';
 import { zip } from 'd3-array';
 import { Constructor } from 'type-fest';
-import { property, state } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { isArray, isObjectType, isNullish } from 'remeda';
 import { CounterBaseMixin } from './counter-base.js';
 import { PartData } from '../types/group.js';
@@ -10,6 +10,7 @@ import {
   PartPreprocessedData,
   preprocessPartData,
 } from '../utils/preprocess-part-data.js';
+import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
 export interface PartsOptions {
   sampleCount: number;
@@ -28,7 +29,9 @@ type InnerPartsOptions = Omit<PartsOptions, 'digitToChar'> & {
   digitToChar: Record<string | number, string>;
 };
 
-export declare class CounterPartsMixinInterface<V> {
+export declare class CounterPartsMixinInterface<
+  V extends AvailableNumberAdapterValueType,
+> {
   parts: PartData[];
 
   oldParts: PartData[];
@@ -68,7 +71,7 @@ function preprocessPartsOptions(options: PartsOptions): InnerPartsOptions {
 }
 
 export const CounterPartsMixin = <
-  V,
+  V extends AvailableNumberAdapterValueType,
   T extends ReturnType<typeof CounterBaseMixin<V>> = ReturnType<
     typeof CounterBaseMixin<V>
   >,
@@ -104,13 +107,10 @@ export const CounterPartsMixin = <
     partsOptions: InnerPartsOptions =
       CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS;
 
-    @state()
     parts: PartData[] = [];
 
-    @state()
     oldParts: PartData[] = [];
 
-    @state()
     partPreprocessDataList: PartPreprocessedData[][] = [];
 
     sampling(from: V, to: V) {
@@ -132,34 +132,36 @@ export const CounterPartsMixin = <
     }
 
     willUpdate(changedProperties: PropertyValues<this>) {
-      const oldDirection = this.direction;
-      this.oldParts = this.parts;
-
-      super.willUpdate(changedProperties);
-
-      if (changedProperties.has('value')) {
-        this.parts = this.processPartData(
-          [this.value, this.oldValue],
-          this.partsOptions,
-        );
+      if (changedProperties.has('partsOptions')) {
+        this.partsOptions = preprocessPartsOptions(this.partsOptions);
       }
 
-      /**
-       * `value` 没变但 `direction` 变化时, 也要重新生成 `partPreprocessDataList`.
-       */
-      if (
-        changedProperties.has('value') ||
-        changedProperties.has('direction')
-      ) {
+      if (changedProperties.has('value')) {
+        const oldDirection = this.direction;
+        this.oldParts = this.parts;
+
+        super.willUpdate(changedProperties);
+
+        this.parts = this.processPartData();
         this.partPreprocessDataList = preprocessPartData(
           this.direction,
           this.parts,
           oldDirection,
           this.oldParts,
         );
+      } else {
+        super.willUpdate(changedProperties);
       }
 
-      this.partsOptions = preprocessPartsOptions(this.partsOptions);
+      /**
+       * `value` 没变但 `direction` 变化时, 也要重新生成 `partPreprocessDataList`.
+       */
+      // todo test events 和 animationOptions 冲突
+      // if (
+      //   changedProperties.has('value') ||
+      //   changedProperties.has('direction')
+      // ) {
+      // }
     }
 
     /**
@@ -168,13 +170,12 @@ export const CounterPartsMixin = <
      * 2. 转换
      * 3. 构造
      */
-    private processPartData(
-      value: [V, V] | Readonly<[V, V]>,
-      options: InnerPartsOptions,
-    ) {
-      const { decimalSeparator, digitToChar, minPlaces, fillChar } = options;
+    private processPartData() {
+      const { decimalSeparator, digitToChar, minPlaces, fillChar } =
+        this.partsOptions;
 
-      const [from, to] = value;
+      const from = this.value;
+      const to = this.oldValue;
 
       const result: PartData[] = [];
 

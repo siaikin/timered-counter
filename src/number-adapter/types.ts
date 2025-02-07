@@ -1,9 +1,12 @@
+import { BuildInNumberAdapter } from './build-in-number.js';
+import { DecimalJsAdapter } from './decimal-js.js';
+
 /**
  * 可以使用不同数字类型, 如 int, ~~bigint~~, decimal.js 等
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface NumberAdapter<T = any> {
-  create(value: string | number): T;
+  create(value: any): T;
   add(a: T, b: T): T;
   sub(a: T, b: T): T;
   mul(a: T, b: T | number): T;
@@ -32,3 +35,7 @@ export interface NumberAdapter<T = any> {
 
 export type ExtractNumberAdapterType<T> =
   T extends NumberAdapter<infer U> ? U : never;
+
+export type AvailableNumberAdapterValueType = ExtractNumberAdapterType<
+  ReturnType<typeof BuildInNumberAdapter> | ReturnType<typeof DecimalJsAdapter>
+>;

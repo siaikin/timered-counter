@@ -1,8 +1,9 @@
-import { NumberAdapter } from "./types.js";
+import { NumberAdapter } from './types.js';
 
 const BuildInNumberAdapter: () => NumberAdapter<number> = () => ({
   create(value: string | number): number {
-    return Number(value);
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
   },
   add(a, b) {
     return a + b;
@@ -18,8 +19,8 @@ const BuildInNumberAdapter: () => NumberAdapter<number> = () => ({
   },
   compare(a, b) {
     if (a > b) return 1;
-    else if (a < b) return -1;
-    else return 0;
+    if (a < b) return -1;
+    return 0;
   },
   eq(a, b) {
     return a === b;
