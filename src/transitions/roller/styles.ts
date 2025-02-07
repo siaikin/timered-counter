@@ -1,22 +1,32 @@
 import { css } from 'lit';
 
 export const rollerStyles = css`
+  .counter-parts {
+    display: inline-flex;
+    flex: 1 1 auto;
+  }
+
   .roller-part {
     white-space: nowrap;
   }
 
+  .roller__prefix,
+  .roller__suffix {
+    flex: none;
+  }
+
   .roller-part .roller-part__wrapper {
     display: inline-block;
+  }
+
+  .roller-part .roller-part__unit {
+    //display: inline-block;
   }
 `;
 
 export const rollerDigitStyles = css`
   .roller-part-digit {
     position: relative;
-    display: inline-block;
-  }
-
-  .roller-part__unit {
     display: inline-block;
   }
 

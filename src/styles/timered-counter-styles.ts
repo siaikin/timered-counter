@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-export const timeredCounterstyles = css`
+export const timeredCounterStyles = css`
   .timered-counter {
     position: relative;
     display: inline-flex;
@@ -16,16 +16,6 @@ export const timeredCounterstyles = css`
 
   .timered-counter.debug {
     overflow: visible;
-  }
-
-  .timered-counter .counter__prefix,
-  .timered-counter .counter__suffix {
-    flex: none;
-  }
-
-  .counter-parts {
-    display: inline-flex;
-    flex: 1 1 auto;
   }
 
   //.timered-counter-datetime-duration .duration-unit {

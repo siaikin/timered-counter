@@ -1,10 +1,13 @@
 import { html, LitElement, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
+import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
+import { clone, isNumber, values } from 'remeda';
 import { PartData } from '../../types/group.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import './roller-digit.js';
 import { rollerStyles } from './styles.js';
+import { mergePartDigitOption } from '../../utils/extract-group-option.js';
 
 class RollerAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {
@@ -15,6 +18,9 @@ class RollerAnimationEvent extends Event {
 @customElement('timered-counter-roller')
 export class TimeredCounterRoller extends LitElement {
   static styles = [rollerStyles];
+
+  @property({ type: String })
+  color: string = '';
 
   @property({ type: String })
   direction: 'up' | 'down' = 'up';
@@ -40,39 +46,87 @@ export class TimeredCounterRoller extends LitElement {
   @property({ type: Array })
   partStyles: Partial<CSSStyleDeclaration>[] = [];
 
+  @property({ type: Object })
+  parentContainerRect: DOMRect = {} as DOMRect;
+
+  @query('.roller__prefix')
+  prefixContainer: HTMLElement | undefined;
+
+  @query('.roller__suffix')
+  suffixContainer: HTMLElement | undefined;
+
+  private __mergedDigitStyles: Partial<CSSStyleDeclaration>[][] = [];
+
   protected render() {
-    return repeat(
-      this.parts,
-      (_, index) => index,
-      (part, partIndex) =>
-        html`<span class="roller-part"
-          >${repeat(
-            part.digits,
-            (_, index) => `${part.digits.length - index}`,
-            (digitInfo, digitIndex) =>
-              html`<span
-                class="roller-part__wrapper"
-                data-part-id="${partIndex}"
-                data-digit-id="${digitIndex}"
+    return html`
+      <span
+        class="roller__prefix"
+        data-part-id="-1"
+        data-digit-id="0"
+        style=${styleMap(
+          (this.__mergedDigitStyles[-1]?.[0] ?? {}) as StyleInfo,
+        )}
+      >
+        <slot name="prefix"></slot>
+      </span>
+      <span class="counter-parts">
+        ${repeat(
+          this.parts,
+          (_, index) => index,
+          (part, partIndex) =>
+            html`<span class="roller-part"
+                >${repeat(
+                  part.digits,
+                  (_, index) => `${part.digits.length - index}`,
+                  (digitInfo, digitIndex) =>
+                    html`<span
+                      class="roller-part__wrapper"
+                      data-part-id="${partIndex}"
+                      data-digit-id="${digitIndex}"
+                    >
+                      <timered-counter-roller-digit
+                        .digit=${digitInfo}
+                        .preprocessData=${this.partPreprocessDataList[
+                          partIndex
+                        ][digitIndex]}
+                        .direction=${this.direction}
+                        .textStyle=${this.__mergedDigitStyles[partIndex][
+                          digitIndex
+                        ]}
+                        .cellStyle=${this.cellStyles[partIndex][digitIndex]}
+                        .animationOptions=${this.animationOptions[partIndex][
+                          digitIndex
+                        ]}
+                        .keyframes=${this.keyframes[partIndex][digitIndex]}
+                        @roller-digit-animation-end=${this
+                          .__handleDigitAnimationEnd}
+                      ></timered-counter-roller-digit>
+                    </span>`,
+                )}</span
               >
-                <timered-counter-roller-digit
-                  .digit=${digitInfo}
-                  .preprocessData=${this.partPreprocessDataList[partIndex][
-                    digitIndex
-                  ]}
-                  .direction=${this.direction}
-                  .textStyle=${this.digitStyles[partIndex][digitIndex]}
-                  .cellStyle=${this.cellStyles[partIndex][digitIndex]}
-                  .animationOptions=${this.animationOptions[partIndex][
-                    digitIndex
-                  ]}
-                  .keyframes=${this.keyframes[partIndex][digitIndex]}
-                  @roller-digit-animation-end=${this.__handleDigitAnimationEnd}
-                ></timered-counter-roller-digit>
+              <span
+                class="roller-part__unit"
+                data-part-id="${partIndex}"
+                data-digit-id="-1"
+                style=${styleMap(
+                  (this.__mergedDigitStyles[partIndex][-1] ?? {}) as StyleInfo,
+                )}
+              >
+                <slot name=${`part-suffix-${partIndex}`}></slot>
               </span>`,
-          )}</span
-        >`,
-    );
+        )}
+      </span>
+      <span
+        class="roller__suffix"
+        data-part-id="-2"
+        data-digit-id="0"
+        style=${styleMap(
+          (this.__mergedDigitStyles[-2]?.[0] ?? {}) as StyleInfo,
+        )}
+      >
+        <slot name="suffix"></slot>
+      </span>
+    `;
   }
 
   protected willUpdate(_changedProperties: PropertyValues) {
@@ -91,6 +145,14 @@ export class TimeredCounterRoller extends LitElement {
         this.__emitAnimationStart();
       }
     }
+
+    /**
+     * 将 color 样式合并到 digitStyles 中.
+     */
+    this.__mergedDigitStyles = mergePartDigitOption(
+      clone(this.digitStyles),
+      this.__generatePartDigitsColorStyles(),
+    );
   }
 
   /**
@@ -125,5 +187,80 @@ export class TimeredCounterRoller extends LitElement {
 
   private __emitAnimationEnd() {
     this.dispatchEvent(new RollerAnimationEvent('roller-animation-end'));
+  }
+
+  private __generatePartDigitsColorStyles() {
+    const result: Partial<CSSStyleDeclaration>[][] = [];
+
+    const containerRect = this.parentContainerRect;
+    const {
+      // parts,
+      // oldParts,
+      prefixContainer,
+      suffixContainer,
+      color,
+    } = this;
+    const partDigitElements = Array.from(
+      this.shadowRoot?.querySelectorAll('[data-part-id]').values() ?? [],
+    ) as HTMLElement[];
+
+    /**
+     * 当某次更新**将**会导致 DOM 宽高发生变化时(如: 滚动数字的位数增加/减少会导致宽度变化),
+     * 需要跳过这次更新然后等待 DOM 宽高变化完成才能更新(宽高变化后将通过 {@link containerRect} 触发).
+     */
+    if (!containerRect) {
+      return result;
+    }
+    /**
+     * 比较 {@link data} 前后不同判断是否导致 DOM 宽度会发生变化.
+     */
+    // if (parts.length !== oldParts.length) {
+    //   this.requestUpdate();
+    //   return result;
+    // }
+    // for (let i = 0; i < parts.length; i++) {
+    //   if (parts[i].digits.length !== oldParts[i].digits.length) {
+    //     this.requestUpdate();
+    //     return result;
+    //   }
+    // }
+
+    if (prefixContainer) partDigitElements[-1] = prefixContainer;
+    if (suffixContainer) partDigitElements[-2] = suffixContainer;
+
+    for (const el of values(partDigitElements)) {
+      const partId = Number.parseInt(el.dataset.partId ?? '-1', 10);
+      const digitId = Number.parseInt(el.dataset.digitId ?? '-1', 10);
+      if (!isNumber(partId) || !isNumber(digitId)) {
+        throw new Error(
+          'The data-part-id and data-digit-id attributes are required.',
+        );
+      }
+
+      if (!result[partId]) result[partId] = [];
+
+      if (CSS.supports('color', color)) {
+        result[partId][digitId] = { color };
+      } else if (CSS.supports('background-image', color)) {
+        result[partId][digitId] = {
+          backgroundImage: color,
+          backgroundClip: 'text',
+          backgroundSize: `${containerRect.width}px ${containerRect.height}px`,
+          backgroundPositionX: `${-el.offsetLeft}px`,
+          backgroundPositionY: `${-el.offsetTop}px`,
+          backgroundRepeat: 'no-repeat',
+          color: 'transparent',
+          // @ts-ignore
+          '-webkit-text-fill-color': 'transparent',
+        };
+      } else {
+        result[partId][digitId] = {};
+        // todo error event
+        // eslint-disable-next-line no-console
+        console.warn(new Error('The color property is not supported.'));
+      }
+    }
+
+    return result;
   }
 }

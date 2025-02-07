@@ -11,6 +11,7 @@ export const Slots: StoryObj<TimeredCounter> = {
     html`<timered-counter value=${args.value}>
       <span slot="prefix">prefix</span>
       <span slot="suffix">suffix</span>
+      <span slot="part-suffix-0">suffix</span>
     </timered-counter>`,
   async play({ canvasElement, step }) {
     const counter = canvasElement.querySelector(
@@ -18,19 +19,23 @@ export const Slots: StoryObj<TimeredCounter> = {
     ) as TimeredCounter;
 
     await step('Check slots are rendered', async () => {
-      const prefix = counter.shadowRoot?.querySelector(
-        '.counter__prefix slot',
-      ) as HTMLSlotElement;
-      const suffix = counter.shadowRoot?.querySelector(
-        '.counter__suffix slot',
-      ) as HTMLSlotElement;
+      const prefix = counter.shadowRoot
+        ?.querySelector('timered-counter-roller')
+        ?.shadowRoot?.querySelector('.roller__prefix slot') as HTMLSlotElement;
+      const suffix = counter.shadowRoot
+        ?.querySelector('timered-counter-roller')
+        ?.shadowRoot?.querySelector('.roller__suffix slot') as HTMLSlotElement;
 
-      await expect(prefix?.assignedElements()[0].textContent?.trim()).toBe(
-        'prefix',
-      );
-      await expect(suffix?.assignedElements()[0].textContent?.trim()).toBe(
-        'suffix',
-      );
+      await expect(
+        (prefix?.assignedElements()[0] as HTMLSlotElement)
+          .assignedElements()[0]
+          .textContent?.trim(),
+      ).toBe('prefix');
+      await expect(
+        (suffix?.assignedElements()[0] as HTMLSlotElement)
+          .assignedElements()[0]
+          .textContent?.trim(),
+      ).toBe('suffix');
     });
   },
 };
