@@ -67,7 +67,7 @@ export class TimeredCounterRoller extends LitElement {
           (this.__mergedDigitStyles[-1]?.[0] ?? {}) as StyleInfo,
         )}
       >
-        <slot name="prefix"></slot>
+        <slot part="prefix" name="prefix"></slot>
       </span>
       <span class="counter-parts">
         ${repeat(
@@ -105,14 +105,17 @@ export class TimeredCounterRoller extends LitElement {
                 )}</span
               >
               <span
-                class="roller-part__unit"
+                class="roller-part__suffix"
                 data-part-id="${partIndex}"
                 data-digit-id="-1"
                 style=${styleMap(
                   (this.__mergedDigitStyles[partIndex][-1] ?? {}) as StyleInfo,
                 )}
               >
-                <slot name=${`part-suffix-${partIndex}`}></slot>
+                <slot
+                  part="part-suffix"
+                  name=${`part-suffix-${partIndex}`}
+                ></slot>
               </span>`,
         )}
       </span>
@@ -124,7 +127,7 @@ export class TimeredCounterRoller extends LitElement {
           (this.__mergedDigitStyles[-2]?.[0] ?? {}) as StyleInfo,
         )}
       >
-        <slot name="suffix"></slot>
+        <slot part="suffix" name="suffix"></slot>
       </span>
     `;
   }

@@ -59,6 +59,7 @@ export class TimeredCounter extends CounterAiraMixin(
 
     return html`
       <timered-counter-roller
+        exportparts="prefix, suffix, part-suffix"
         class="timered-counter"
         aria-hidden="true"
         color=${this.color}
@@ -71,8 +72,8 @@ export class TimeredCounter extends CounterAiraMixin(
         .digitStyles=${digitStyles}
         .partStyles=${partStyles}
         .direction=${this.direction}
-        @roller-animation-start=${this.__emitTimeredCounterAnimationStart}
-        @roller-animation-end=${this.__emitTimeredCounterAnimationEnd}
+        @roller-animation-start=${this.dispatchTimeredCounterAnimationStart}
+        @roller-animation-end=${this.dispatchTimeredCounterAnimationEnd}
       >
         <slot name="prefix" slot="prefix"></slot>
         <slot name="suffix" slot="suffix"></slot>
@@ -89,13 +90,13 @@ export class TimeredCounter extends CounterAiraMixin(
     `;
   }
 
-  private __emitTimeredCounterAnimationStart() {
+  dispatchTimeredCounterAnimationStart() {
     this.dispatchEvent(
       new TimeredCounterAnimationEvent('timered-counter-animation-start'),
     );
   }
 
-  private __emitTimeredCounterAnimationEnd() {
+  dispatchTimeredCounterAnimationEnd() {
     this.dispatchEvent(
       new TimeredCounterAnimationEvent('timered-counter-animation-end'),
     );

@@ -93,7 +93,9 @@
       "no-plusplus": "off",
       "no-param-reassign": "off",
       "max-classes-per-file": "off",
-      "wc/guard-super-call": "off"
+      "wc/guard-super-call": "off",
+      "no-shadow": "off",
+      "@typescript-eslint/no-shadow": ["error"]
     }
   },
   "prettier": {

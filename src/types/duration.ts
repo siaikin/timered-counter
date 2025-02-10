@@ -4,7 +4,7 @@ export enum DurationPartType {
   Minute = 'minute',
   Hour = 'hour',
   Day = 'day',
-  Week = 'week',
+  Week = 'weekOfYear',
   Month = 'month',
   Quarter = 'quarter',
   Year = 'year',

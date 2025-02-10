@@ -13,14 +13,6 @@ import {
 import { CounterPartsMixin } from './counter-parts.js';
 import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
-export interface PartDataOptions {
-  sampleCount: number;
-  digitToChar: Record<string | number, string>;
-  decimalSeparator: string;
-  minPlaces: [number | undefined, number | undefined];
-  fillChar: string;
-}
-
 export declare class CounterAnimationMixinInterface {
   animationOptions: PartDigitValue<KeyframeAnimationOptions>;
 

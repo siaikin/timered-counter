@@ -16,11 +16,17 @@ export declare class CounterBaseMixinInterface<
 
   static STRING_ADAPTER: StringAdapter;
 
-  value: V;
+  get value(): V;
 
-  oldValue: V;
+  set value(value: V);
 
-  initialValue?: V;
+  get oldValue(): V;
+
+  set oldValue(value: V);
+
+  get initialValue(): V;
+
+  set initialValue(value: V);
 
   direction: 'up' | 'down';
 

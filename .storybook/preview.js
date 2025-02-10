@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import './styles.css';
 
 const preview = {
   // argTypes: {

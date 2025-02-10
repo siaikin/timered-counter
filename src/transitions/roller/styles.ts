@@ -19,7 +19,7 @@ export const rollerStyles = css`
     display: inline-block;
   }
 
-  .roller-part .roller-part__unit {
+  .roller-part .roller-part__suffix {
     //display: inline-block;
   }
 `;
