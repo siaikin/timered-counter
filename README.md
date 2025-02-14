@@ -1,21 +1,21 @@
-# \<td-counter>
+# \<timered-counter>
 
 This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
 ## Installation
 
 ```bash
-npm i td-counter
+npm i timered-counter
 ```
 
 ## Usage
 
 ```html
 <script type="module">
-  import 'td-counter/td-counter.js';
+  import 'timered-counter/timered-counter.js';
 </script>
 
-<td-counter></td-counter>
+<timered-counter></timered-counter>
 ```
 
 ## Linting and formatting
