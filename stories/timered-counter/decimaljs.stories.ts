@@ -13,7 +13,7 @@ setCustomElementsManifest(customElementsManifest);
 const meta: Meta = {
   title: 'TimeredCounter/with decimal.js',
   component: 'timered-counter',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'timered-counter'],
   parameters: {
     controls: { expanded: true },
   },

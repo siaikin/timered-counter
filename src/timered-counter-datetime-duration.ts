@@ -1,5 +1,4 @@
 import { customElement, property } from 'lit/decorators.js';
-import './transitions/roller/index.js';
 import { html, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { isArray, isDate, isNullish, isString, map } from 'remeda';

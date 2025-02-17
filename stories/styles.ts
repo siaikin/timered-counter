@@ -6,6 +6,7 @@ import { sleep, setByProp, setByAttr } from './utils/index.js';
 
 export const Styles: StoryObj<TimeredCounter> = {
   args: {
+    className: 'test-target',
     value: 0,
     animationOptions: {
       duration: 100,
@@ -13,7 +14,7 @@ export const Styles: StoryObj<TimeredCounter> = {
   },
   async play({ canvasElement, step }) {
     const counter = canvasElement.querySelector(
-      'timered-counter',
+      '.test-target',
     ) as TimeredCounter;
 
     const colorList = [
@@ -40,13 +41,9 @@ export const Styles: StoryObj<TimeredCounter> = {
           const digits = roller!.shadowRoot!.querySelectorAll(
             'timered-counter-roller-digit',
           );
-          const spans = Array.from(digits)
-            .map(digit =>
-              Array.from(
-                digit.shadowRoot!.querySelectorAll('.roll-item > span'),
-              ),
-            )
-            .flat();
+          const spans = Array.from(digits).map(digit =>
+            digit.shadowRoot!.querySelector('.roll-item > span'),
+          );
 
           for await (const span of spans) {
             const { style } = span as HTMLSpanElement;

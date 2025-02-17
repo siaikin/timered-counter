@@ -4,15 +4,15 @@ import { Basic } from '../basic.js';
 import { Events } from '../events.js';
 import { Styles } from '../styles.js';
 import { AnimationOptions } from '../animation-options.js';
-import { Slots } from '../slots.js';
+import { LocaleNumber } from './locale-number.js';
 import { setNumberAdapter } from '../../src/index.js';
 
 setCustomElementsManifest(customElementsManifest);
 
 const meta: Meta = {
-  title: 'TimeredCounter',
-  component: 'timered-counter',
-  tags: ['autodocs', 'timered-counter'],
+  title: 'TimeredCounterNumber',
+  component: 'timered-counter-number',
+  tags: ['autodocs', 'timered-counter-number'],
   parameters: {
     controls: { expanded: true },
   },
@@ -22,4 +22,4 @@ const meta: Meta = {
 };
 export default meta;
 
-export { Basic, Events, Styles, AnimationOptions, Slots };
+export { Basic, Events, AnimationOptions, Styles, LocaleNumber };

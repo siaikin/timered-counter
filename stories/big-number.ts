@@ -4,6 +4,7 @@ import { sleep, equal, setByProp, setByAttr } from './utils/index.js';
 
 export const BigNumber: StoryObj<TimeredCounter> = {
   args: {
+    className: 'test-target',
     value: 0,
     animationOptions: {
       duration: 100,
@@ -11,7 +12,7 @@ export const BigNumber: StoryObj<TimeredCounter> = {
   },
   async play({ canvasElement, step }) {
     const counter = canvasElement.querySelector(
-      'timered-counter',
+      '.test-target',
     ) as TimeredCounter;
 
     const list = [

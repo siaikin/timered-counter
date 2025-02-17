@@ -21,7 +21,7 @@ export const CounterAiraMixin = <
   superClass: T,
 ) => {
   class CounterAiraMixinClass extends superClass {
-    @property({ attribute: 'aira-label', reflect: true })
+    @property({ attribute: 'aria-label', reflect: true })
     ariaLabel: string = '';
 
     @property({ attribute: 'aira-live', reflect: true })
@@ -31,14 +31,29 @@ export const CounterAiraMixin = <
      * 生成 aria-label 属性值. 在每次更新完成后调用.
      */
     generateAriaLabel(): string {
-      return this.numberAdapter.toString(this.value);
+      let label = '';
+
+      const { direction } = this;
+      for (const part of this.parts) {
+        for (const digit of part.digits) {
+          label += `${digit.data[direction === 'up' ? digit.data.length - 1 : 0]}`;
+        }
+      }
+
+      return label;
     }
 
-    updated(changedProperties: PropertyValues<this>) {
-      if (changedProperties.has('value')) {
-        this.ariaLabel = this.generateAriaLabel();
-      }
+    override willUpdate(changedProperties: PropertyValues<this>) {
+      super.willUpdate(changedProperties);
+
+      this.ariaLabel = this.generateAriaLabel();
     }
+
+    // updated(changedProperties: PropertyValues<this>) {
+    //   if (changedProperties.has('value')) {
+    //     this.ariaLabel = this.generateAriaLabel();
+    //   }
+    // }
   }
 
   return CounterAiraMixinClass as Constructor<CounterAiraMixinInterface> & T;

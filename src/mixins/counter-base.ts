@@ -30,6 +30,8 @@ export declare class CounterBaseMixinInterface<
 
   direction: 'up' | 'down';
 
+  oldDirection: 'up' | 'down';
+
   locale:
     | Intl.UnicodeBCP47LocaleIdentifier
     | [Intl.UnicodeBCP47LocaleIdentifier, Intl.LocaleOptions];
@@ -71,7 +73,10 @@ export const CounterBaseMixin = <
 
       const old = this.__value;
       this.__value = value;
-      this.requestUpdate('value', old);
+
+      if (!this.numberAdapter.eq(this.__value, old)) {
+        this.requestUpdate('value', old);
+      }
     }
     // value: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
 
@@ -98,7 +103,7 @@ export const CounterBaseMixin = <
     /**
      * 如果初始值被设置, 组件初始化时会使用该值而不是 `value`, 然后在初始化完成后, 将内部值更新为 `value`.
      *
-     * 这可以实现在初始化完成后启动动画效果非常有用.
+     * 这对于初始化完成后启动动画效果非常有用.
      */
     @property({
       attribute: 'initial-value',
@@ -115,6 +120,10 @@ export const CounterBaseMixin = <
       this.requestUpdate('initialValue', old);
     }
     // initialValue: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
+
+    private __locale:
+      | Intl.UnicodeBCP47LocaleIdentifier
+      | [Intl.UnicodeBCP47LocaleIdentifier, Intl.LocaleOptions] = 'en-US';
 
     /**
      * 自定义本地化配置, 否则从浏览器环境中获取.
@@ -133,11 +142,24 @@ export const CounterBaseMixin = <
         }
       },
     })
-    locale:
-      | Intl.UnicodeBCP47LocaleIdentifier
-      | [Intl.UnicodeBCP47LocaleIdentifier, Intl.LocaleOptions] = 'en-US';
+    get locale() {
+      return this.__locale;
+    }
 
-    @state()
+    set locale(
+      value:
+        | Intl.UnicodeBCP47LocaleIdentifier
+        | [Intl.UnicodeBCP47LocaleIdentifier, Intl.LocaleOptions],
+    ) {
+      const old = this.__locale;
+      this.__locale = value;
+      this.requestUpdate('locale', old);
+
+      this.localeInstance = isString(this.__locale)
+        ? new Intl.Locale(this.__locale)
+        : new Intl.Locale(...this.__locale);
+    }
+
     localeInstance: Intl.Locale = isString(this.locale)
       ? new Intl.Locale(this.locale)
       : new Intl.Locale(...this.locale);
@@ -145,11 +167,12 @@ export const CounterBaseMixin = <
     @state()
     direction: 'up' | 'down' = 'up';
 
+    @state()
+    oldDirection: 'up' | 'down' = this.direction;
+
     numberAdapter: NumberAdapter;
 
     stringAdapter: StringAdapter;
-
-    private isFirstUpdate = true;
 
     constructor(...args: any[]) {
       super(...args);
@@ -160,34 +183,33 @@ export const CounterBaseMixin = <
       this.stringAdapter = CounterAdapter.STRING_ADAPTER;
     }
 
-    connectedCallback() {
-      super.connectedCallback();
+    /**
+     * 第一次更新时, changedProperties 中 value 的旧值始终为 undefined.
+     * 因此, 当 value 第一次更新时, oldValue 的值应当来自 initialValue 或 value.
+     * 以保证 oldValue 始终有值.
+     * @private
+     */
+    private isValueFirstUpdate = true;
 
-      this.oldValue = isNonNullish(this.initialValue)
-        ? this.initialValue
-        : this.value;
-    }
-
-    willUpdate(changedProperties: PropertyValues<this>) {
+    override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
 
       if (changedProperties.has('value')) {
-        if (this.isFirstUpdate) {
-          this.isFirstUpdate = false;
+        if (this.isValueFirstUpdate) {
+          this.isValueFirstUpdate = false;
+          this.oldValue = isNonNullish(this.initialValue)
+            ? this.initialValue
+            : this.value;
         } else {
-          this.oldValue = changedProperties.get('value') as V;
+          this.oldValue = changedProperties.get('value') ?? this.oldValue;
         }
-
-        this.direction = this.numberAdapter.gt(this.value, this.oldValue)
-          ? 'down'
-          : 'up';
       }
 
-      if (changedProperties.has('locale')) {
-        this.localeInstance = isString(this.locale)
-          ? new Intl.Locale(this.locale)
-          : new Intl.Locale(...this.locale);
-      }
+      this.oldDirection = this.direction;
+      this.direction = this.numberAdapter.gt(this.value, this.oldValue)
+        ? 'down'
+        : 'up';
+      // }
     }
   }
 

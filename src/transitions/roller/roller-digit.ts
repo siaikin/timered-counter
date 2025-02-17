@@ -1,7 +1,15 @@
 import { html, LitElement, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
-import { isEmpty, isNullish, isString, merge, omit, range } from 'remeda';
+import {
+  intersection,
+  isEmpty,
+  isNullish,
+  isString,
+  merge,
+  omit,
+  range,
+} from 'remeda';
 import { classMap } from 'lit/directives/class-map.js';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
@@ -72,7 +80,7 @@ export class TimeredCounterRollerDigit extends LitElement {
     });
   }
 
-  protected firstUpdated(_changedProperties: PropertyValues) {
+  protected firstUpdated(_changedProperties: PropertyValues<this>) {
     super.firstUpdated(_changedProperties);
 
     if (this.clonedRollDigitList) {
@@ -89,8 +97,21 @@ export class TimeredCounterRollerDigit extends LitElement {
   protected updated(_changedProperties: PropertyValues) {
     super.updated(_changedProperties);
 
-    if (this.shouldAnimate()) {
-      this.startAnimation().then();
+    /**
+     * 仅当影响滚动列表 dom 结构的属性发生变化时才会触发动画.
+     */
+    if (
+      intersection(Array.from(_changedProperties.keys()), [
+        'digit',
+        'preprocessData',
+        'direction',
+        'animationOptions',
+        'keyframes',
+      ]).length > 0
+    ) {
+      if (this.shouldAnimate()) {
+        this.startAnimation().then();
+      }
     }
   }
 

@@ -23,7 +23,7 @@
     "test:watch": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wtr --watch\"",
     "storybook": "tsc && npm run analyze -- --exclude dist && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"storybook dev -p 8080\"",
     "storybook:build": "tsc && npm run analyze -- --exclude dist && storybook build",
-    "test-storybook": "test-storybook --coverage --url http://127.0.0.1:8080"
+    "test-storybook": "test-storybook --verbose --maxWorkers=1 --coverage --url http://127.0.0.1:8080"
   },
   "dependencies": {
     "@lit/context": "^1.1.3",

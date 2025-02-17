@@ -2,7 +2,7 @@ import { PropertyValues } from 'lit';
 import { zip } from 'd3-array';
 import { Constructor } from 'type-fest';
 import { property } from 'lit/decorators.js';
-import { isArray, isObjectType, isNullish } from 'remeda';
+import { isArray, isObjectType } from 'remeda';
 import { CounterBaseMixin } from './counter-base.js';
 import { PartData } from '../types/group.js';
 import { transitionDigit } from '../utils/transition-digit.js';
@@ -11,6 +11,7 @@ import {
   preprocessPartData,
 } from '../utils/preprocess-part-data.js';
 import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
+import { parseJsonString } from '../utils/parse-json-string.js';
 
 export interface PartsOptions {
   sampleCount: number;
@@ -95,9 +96,7 @@ export const CounterPartsMixin = <
       type: Object,
       attribute: 'parts-options',
       converter: value => {
-        if (isNullish(value)) return {};
-
-        const parsedValue = JSON.parse(value);
+        const parsedValue = parseJsonString(value ?? '') ?? {};
         return {
           ...CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS,
           ...parsedValue,
@@ -131,26 +130,25 @@ export const CounterPartsMixin = <
       return this.numberAdapter.toString(value);
     }
 
-    willUpdate(changedProperties: PropertyValues<this>) {
+    override willUpdate(changedProperties: PropertyValues<this>) {
+      super.willUpdate(changedProperties);
+
       if (changedProperties.has('partsOptions')) {
         this.partsOptions = preprocessPartsOptions(this.partsOptions);
       }
 
-      if (changedProperties.has('value')) {
-        const oldDirection = this.direction;
+      if (
+        changedProperties.has('value') ||
+        changedProperties.has('partsOptions')
+      ) {
         this.oldParts = this.parts;
-
-        super.willUpdate(changedProperties);
-
         this.parts = this.processPartData();
         this.partPreprocessDataList = preprocessPartData(
           this.direction,
           this.parts,
-          oldDirection,
+          this.oldDirection,
           this.oldParts,
         );
-      } else {
-        super.willUpdate(changedProperties);
       }
 
       /**

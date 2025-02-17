@@ -7,6 +7,7 @@ import * as EasingFunctions from '../src/easing/index.js';
 
 export const AnimationOptions: StoryObj<TimeredCounter> = {
   args: {
+    className: 'test-target',
     value: 0,
     animationOptions: {
       duration: 100,
@@ -14,7 +15,7 @@ export const AnimationOptions: StoryObj<TimeredCounter> = {
   },
   async play({ canvasElement, step }) {
     const counter = canvasElement.querySelector(
-      'timered-counter',
+      '.test-target',
     ) as TimeredCounter;
 
     const timeredCounterAnimationEndListener = fn();
@@ -40,9 +41,11 @@ export const AnimationOptions: StoryObj<TimeredCounter> = {
           expect(timeredCounterAnimationEndListener).toHaveBeenCalledTimes(1),
         {
           timeout:
-            2000 + counter.partPreprocessDataList.flat().length * 100 * 2,
+            1000 + counter.partPreprocessDataList.flat().length * 100 * 2,
         },
       );
+
+      counter.animationOptionsDynamic = undefined;
     });
     timeredCounterAnimationEndListener.mockReset();
 
@@ -60,10 +63,8 @@ export const AnimationOptions: StoryObj<TimeredCounter> = {
 
         setByAttr(counter, 'value', Number.parseInt(index, 10).toString());
 
-        await waitFor(
-          () =>
-            expect(timeredCounterAnimationEndListener).toHaveBeenCalledTimes(1),
-          { timeout: 4000 },
+        await waitFor(() =>
+          expect(timeredCounterAnimationEndListener).toHaveBeenCalledTimes(1),
         );
 
         timeredCounterAnimationEndListener.mockReset();

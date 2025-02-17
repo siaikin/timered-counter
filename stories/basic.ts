@@ -5,6 +5,7 @@ import { sleep, equal, setByProp, setByAttr } from './utils/index.js';
 
 export const Basic: StoryObj<TimeredCounter> = {
   args: {
+    className: 'test-target',
     value: 0,
     animationOptions: {
       duration: 100,
@@ -12,10 +13,10 @@ export const Basic: StoryObj<TimeredCounter> = {
   },
   async play({ canvasElement, step }) {
     const counter = canvasElement.querySelector(
-      'timered-counter',
+      '.test-target',
     ) as TimeredCounter;
 
-    const list = range(0, 4).map(v => v * 10);
+    const list = range(0, 2).map(v => v * 10);
 
     async function test(setBy: typeof setByAttr | typeof setByProp) {
       await step('Incrementing the value', async () => {

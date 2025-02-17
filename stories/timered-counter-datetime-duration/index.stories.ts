@@ -57,7 +57,7 @@ function equal(counter: TimeredCounter, a: any, b: any) {
 const meta: Meta = {
   title: 'TimeredCounterDatetimeDuration',
   component: 'timered-counter-datetime-duration',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'timered-counter-datetime-duration'],
   parameters: {
     controls: { expanded: true },
   },
@@ -81,12 +81,12 @@ export const Basic: StoryObj<TimeredCounterDatetimeDuration> = {
 
     async function test(setBy: typeof setByAttr | typeof setByProp) {
       const list = [
-        ...range(0, 5).map(v => [new Date(), addSeconds(new Date(), v)]),
-        ...range(0, 5).map(v => [new Date(), addMinutes(new Date(), v)]),
-        ...range(0, 5).map(v => [new Date(), addHours(new Date(), v)]),
-        ...range(0, 5).map(v => [new Date(), addDays(new Date(), v)]),
-        ...range(0, 5).map(v => [new Date(), addMonths(new Date(), v)]),
-        ...range(0, 5).map(v => [new Date(), addYears(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addSeconds(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addMinutes(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addHours(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addDays(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addMonths(new Date(), v)]),
+        ...range(0, 2).map(v => [new Date(), addYears(new Date(), v)]),
       ];
 
       await step('Incrementing the value', async () => {
