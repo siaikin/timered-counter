@@ -300,12 +300,16 @@ export class TimeredCounterRollerDigit extends LitElement {
   }
 
   private __emitAnimationStart() {
+    if (!this.isConnected) return;
+
     this.dispatchEvent(
       new RollerDigitAnimationEvent('roller-digit-animation-start'),
     );
   }
 
   private __emitAnimationEnd() {
+    if (!this.isConnected) return;
+
     this.dispatchEvent(
       new RollerDigitAnimationEvent('roller-digit-animation-end'),
     );

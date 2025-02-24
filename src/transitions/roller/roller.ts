@@ -185,10 +185,14 @@ export class TimeredCounterRoller extends LitElement {
   }
 
   private __emitAnimationStart() {
+    if (!this.isConnected) return;
+
     this.dispatchEvent(new RollerAnimationEvent('roller-animation-start'));
   }
 
   private __emitAnimationEnd() {
+    if (!this.isConnected) return;
+
     this.dispatchEvent(new RollerAnimationEvent('roller-animation-end'));
   }
 
