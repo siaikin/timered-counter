@@ -11,6 +11,7 @@ import { duration, durationObject } from './utils/duration.js';
 import { iso8601Duration } from './utils/iso8601-duration.js';
 import { timeredCounterDatetimeStyles } from './styles/timered-counter-datetime-styles.js';
 import { parseJsonString } from './utils/parse-json-string.js';
+import { PartsOptions } from './mixins/counter-parts.js';
 
 /**
  * 根据最小精度对 from 进行优化. 避免频繁更新.
@@ -96,6 +97,20 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
     );
 
     super.value = this.__durationInMilliseconds;
+  }
+
+  private __partsOptions: Partial<PartsOptions> | null = null;
+
+  get partsOptions(): Partial<PartsOptions> {
+    return super.partsOptions;
+  }
+
+  set partsOptions(value: Partial<PartsOptions>) {
+    this.__partsOptions = value;
+    super.partsOptions = {
+      minPlaces: [2, undefined],
+      ...this.__partsOptions,
+    };
   }
 
   private __from: Date = new Date();
@@ -243,5 +258,14 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
         this.localeInstance,
       );
     }
+  }
+
+  override firstUpdated(_changedProperties: PropertyValues<this>) {
+    super.firstUpdated(_changedProperties);
+
+    /**
+     * TimeredCounterDatetimeDuration 将 `minPlaces` 默认设置为 `[2]`. 实例化时需要手动触发 `partsOptions` 的 setter.
+     */
+    this.partsOptions = this.__partsOptions ?? {};
   }
 }
