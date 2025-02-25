@@ -2,7 +2,7 @@
  * @license https://github.com/HarasimowiczKamil/any-base
  */
 import { isDeepEqual } from 'remeda';
-import { StringAdapter } from '../string-adapter/index.js';
+import type { StringAdapter } from '../string-adapter/index.js';
 
 function isValid(number: string[], alphabet: string[]) {
   for (const char of number) {
@@ -37,19 +37,19 @@ function convert(
     return number.join('');
   }
 
-  for (i = 0; i < length; i += 1) {
+  for (i = 0; i < length; i++) {
     numberMap[i] = srcAlphabet.indexOf(number[i]);
   }
   do {
     divide = 0;
     newLen = 0;
-    for (i = 0; i < length; i += 1) {
+    for (i = 0; i < length; i++) {
       divide = divide * fromBase + numberMap[i];
       if (divide >= toBase) {
-        numberMap[(newLen += 1)] = Math.floor(divide / toBase);
+        numberMap[newLen++] = Math.floor(divide / toBase);
         divide %= toBase;
       } else if (newLen > 0) {
-        numberMap[(newLen += 1)] = 0;
+        numberMap[newLen++] = 0;
       }
     }
     length = newLen;

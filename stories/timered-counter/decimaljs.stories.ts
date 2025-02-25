@@ -1,12 +1,12 @@
-import { Meta, setCustomElementsManifest } from '@storybook/web-components';
+import {
+  Meta,
+  setCustomElementsManifest,
+  StoryObj,
+} from '@storybook/web-components';
 import customElementsManifest from '../../custom-elements.json' with { type: 'json' };
-import { Basic } from '../basic.js';
-import { Events } from '../events.js';
-import { BigNumber } from '../big-number.js';
-import { AnimationOptions } from '../animation-options.js';
-import { Slots } from '../slots.js';
-import { Styles } from '../styles.js';
-import { setNumberAdapter } from '../../src/index.js';
+import { setNumberAdapter, type TimeredCounter } from '../../src/index.js';
+import { bigNumber } from '../story-parts/big-number.js';
+import { setByAttr, setByProp } from '../utils/index.js';
 
 setCustomElementsManifest(customElementsManifest);
 
@@ -23,4 +23,33 @@ const meta: Meta = {
 };
 export default meta;
 
-export { Basic, Events, BigNumber, AnimationOptions, Slots, Styles };
+export {
+  Basic,
+  Events,
+  AnimationOptions,
+  Slots,
+  Styles,
+} from './index.stories.js';
+
+export const BigNumber: StoryObj<TimeredCounter> = {
+  args: {
+    className: 'test-target',
+    animationOptions: {
+      duration: 100,
+    },
+  },
+  async play(context) {
+    const { canvasElement, step } = context;
+    const counter = canvasElement.querySelector(
+      '.test-target',
+    ) as TimeredCounter;
+
+    await step('Testing with attribute', async () =>
+      bigNumber(context, { counter, setBy: setByAttr }),
+    );
+
+    await step('Testing with property', async () =>
+      bigNumber(context, { counter, setBy: setByProp }),
+    );
+  },
+};

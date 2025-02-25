@@ -19,12 +19,25 @@ export interface PartsOptions {
    * 可以通过该属性将数字转换为你想要的任意字符串.
    */
   digitToChar: Record<string | number, string> | string[];
+  /**
+   * 小数点分隔符.
+   */
   decimalSeparator: string;
   /**
    * 当**位数不足**时, 强制补全的 [整数, 小数] 位数. 为空时位数自适应.
    */
   minPlaces: [number | undefined, number | undefined];
   fillChar: string;
+  /**
+   * 数据类型.
+   *
+   * 1. `'string'`: 字符串类型.
+   *  1. 不会使用 `decimalSeparator` 截取小数部分.
+   * 2. `'number'`: 数字类型.
+   *
+   *  @default `'number'`
+   */
+  type: 'string' | 'number';
 }
 type InnerPartsOptions = Omit<PartsOptions, 'digitToChar'> & {
   digitToChar: Record<string | number, string>;
@@ -39,7 +52,9 @@ export declare class CounterPartsMixinInterface<
 
   partPreprocessDataList: PartPreprocessedData[][];
 
-  partsOptions: PartsOptions;
+  get partsOptions(): Partial<PartsOptions>;
+
+  set partsOptions(value: Partial<PartsOptions>);
 
   sampling(from: V, to: V): V[];
 
@@ -86,6 +101,11 @@ export const CounterPartsMixin = <
       fillChar: '0',
       minPlaces: [1, 0],
       digitToChar: {},
+      type: 'number',
+    };
+
+    #__partsOptions: InnerPartsOptions = {
+      ...CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS,
     };
 
     /**
@@ -95,16 +115,23 @@ export const CounterPartsMixin = <
     @property({
       type: Object,
       attribute: 'parts-options',
-      converter: value => {
-        const parsedValue = parseJsonString(value ?? '') ?? {};
-        return {
-          ...CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS,
-          ...parsedValue,
-        };
-      },
+      converter: value => parseJsonString(value ?? '') ?? {},
+      noAccessor: true,
     })
-    partsOptions: InnerPartsOptions =
-      CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS;
+    get partsOptions(): InnerPartsOptions {
+      return this.#__partsOptions;
+    }
+
+    set partsOptions(value: Partial<PartsOptions>) {
+      const old = this.#__partsOptions;
+      this.#__partsOptions = preprocessPartsOptions({
+        ...CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS,
+        ...value,
+      });
+      this.requestUpdate('partsOptions', old);
+    }
+    // partsOptions: InnerPartsOptions =
+    //   CounterPartsMixinClass.DEFAULT_PARTS_OPTIONS;
 
     parts: PartData[] = [];
 
@@ -132,10 +159,6 @@ export const CounterPartsMixin = <
 
     override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
-
-      if (changedProperties.has('partsOptions')) {
-        this.partsOptions = preprocessPartsOptions(this.partsOptions);
-      }
 
       if (
         changedProperties.has('value') ||
@@ -169,11 +192,17 @@ export const CounterPartsMixin = <
      * 3. 构造
      */
     private processPartData() {
-      const { decimalSeparator, digitToChar, minPlaces, fillChar } =
+      const { decimalSeparator, digitToChar, minPlaces, fillChar, type } =
         this.partsOptions;
 
       const from = this.value;
       const to = this.oldValue;
+
+      let _sampleToString: (value: V) => string[] = value =>
+        this.sampleToString(value).split(decimalSeparator);
+      if (type === 'string') {
+        _sampleToString = value => [this.sampleToString(value), ''];
+      }
 
       const result: PartData[] = [];
 
@@ -199,14 +228,15 @@ export const CounterPartsMixin = <
 
           const [minIntegerPlaces = 1, minDecimalPlaces = 0] = minPlaces;
 
-          const numberParts =
-            this.sampleToString(tailNumber).split(decimalSeparator);
+          const numberParts = _sampleToString(tailNumber);
           const integerPlaces = Math.max(
-            numberParts[0].length,
+            // numberParts[0].length,
+            this.stringAdapter.stringToChars(numberParts[0]).length,
             minIntegerPlaces,
           );
           const decimalPlaces = Math.max(
-            numberParts[1]?.length ?? 0,
+            // numberParts[1]?.length ?? 0,
+            this.stringAdapter.stringToChars(numberParts[1] ?? '').length,
             minDecimalPlaces,
           );
 
@@ -214,34 +244,39 @@ export const CounterPartsMixin = <
            * 使用 zip 将二维矩阵, 旋转90度
            */
           const data = zip(
-            ...partData.map(digitData => {
-              // 保证位数一致, 向前补零
-              const [integer = '', decimal = ''] =
-                this.sampleToString(digitData).split(decimalSeparator);
+            ...partData
+              /**
+               * 保证位数一致, 向前补零
+               */
+              .map(digitData => {
+                const [integer = '', decimal = ''] = _sampleToString(digitData);
 
-              const filledIntegerPlaces = Math.max(
-                integerPlaces - integer.length,
-                0,
-              );
+                const integerChars = this.stringAdapter.stringToChars(integer);
+                const decimalChars = this.stringAdapter.stringToChars(decimal);
 
-              const filledDecimalPlaces = Math.max(
-                decimalPlaces - decimal.length,
-                0,
-              );
-
-              let filledChars = ([] as string[]).concat(
-                new Array(filledIntegerPlaces).fill(fillChar),
-                this.stringAdapter.stringToChars(integer),
-              );
-              if (decimalPlaces > 0) {
-                filledChars = filledChars.concat(
-                  [decimalSeparator],
-                  this.stringAdapter.stringToChars(decimal),
-                  new Array(filledDecimalPlaces).fill(fillChar),
+                const filledIntegerPlaces = Math.max(
+                  integerPlaces - integerChars.length,
+                  0,
                 );
-              }
-              return filledChars;
-            }),
+
+                const filledDecimalPlaces = Math.max(
+                  decimalPlaces - decimalChars.length,
+                  0,
+                );
+
+                let filledChars = ([] as string[]).concat(
+                  new Array(filledIntegerPlaces).fill(fillChar),
+                  integerChars,
+                );
+                if (decimalPlaces > 0) {
+                  filledChars = filledChars.concat(
+                    [decimalSeparator],
+                    decimalChars,
+                    new Array(filledDecimalPlaces).fill(fillChar),
+                  );
+                }
+                return filledChars;
+              }),
           )
             /**
              * 删除连续的重复项

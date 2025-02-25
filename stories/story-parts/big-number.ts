@@ -1,0 +1,45 @@
+import { StoryObj } from '@storybook/web-components';
+import { TimeredCounter } from '../../src/index.js';
+import { equal as _equal, NoUndefinedField, sleep } from '../utils/index.js';
+
+export async function bigNumber<TC extends TimeredCounter>(
+  context: Parameters<NoUndefinedField<StoryObj>['play']>[0],
+  {
+    counter,
+    setBy,
+    equal = _equal,
+  }: {
+    counter: TC;
+    setBy: (counter: TC, key: string, value: string) => void;
+    equal?: (counter: TimeredCounter, a: any, b: any) => Promise<void>;
+  },
+) {
+  const { step, args } = context;
+
+  const list = [
+    '0',
+    '179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '359538626972463140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '539307940458694710000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  ];
+
+  await step('Incrementing the value', async () => {
+    for await (const value of list) {
+      setBy(counter, 'value', value);
+
+      await sleep((args.animationOptions.duration ?? 100) + 10);
+
+      await equal(counter, counter.value, value);
+    }
+  });
+
+  await step('Decrementing the value', async () => {
+    for await (const value of list.reverse()) {
+      setBy(counter, 'value', value);
+
+      await sleep((args.animationOptions.duration ?? 100) + 10);
+
+      await equal(counter, counter.value, value);
+    }
+  });
+}

@@ -86,6 +86,7 @@ export const CounterBaseMixin = <
       attribute: 'old-value',
       reflect: true,
       converter: CounterAdapter.VALUE_CONVERTER,
+      noAccessor: true,
     })
     get oldValue() {
       return this.numberAdapter.create(this.__oldValue);
@@ -109,6 +110,7 @@ export const CounterBaseMixin = <
       attribute: 'initial-value',
       reflect: true,
       converter: CounterAdapter.VALUE_CONVERTER,
+      noAccessor: true,
     })
     get initialValue() {
       return this.numberAdapter.create(this.__initialValue);
@@ -119,7 +121,6 @@ export const CounterBaseMixin = <
       this.__initialValue = value;
       this.requestUpdate('initialValue', old);
     }
-    // initialValue: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
 
     private __locale:
       | Intl.UnicodeBCP47LocaleIdentifier
@@ -141,6 +142,7 @@ export const CounterBaseMixin = <
           return value;
         }
       },
+      noAccessor: true,
     })
     get locale() {
       return this.__locale;

@@ -9,9 +9,20 @@ const preview = {
   //   animationOptions: { control: { type: 'object' } },
   //   'animation-options': { control: { type: 'object' } },
   // },
-  initialGlobals: {
-    numberAdapter: 'number',
-  },
+  // globalTypes: {
+  //   duration: {
+  //     description: 'The duration of the animation',
+  //     toolbar: {
+  //       title: 'Duration',
+  //       icon: 'timer',
+  //       items: ['100', '1000', '5000'],
+  //       dynamicTitle: true,
+  //     },
+  //   },
+  // },
+  // initialGlobals: {
+  //   duration: 100,
+  // },
 
   parameters: {
     test: {
