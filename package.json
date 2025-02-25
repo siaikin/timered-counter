@@ -9,8 +9,18 @@
   "module": "dist/src/index.js",
   "exports": {
     ".": "./dist/src/index.js",
-    "./timered-counter.js": "./dist/src/timered-counter.js"
+    "./timered-counter.js": "./dist/src/timered-counter.js",
+    "./timered-counter-datetime-duration": "./dist/src/timered-counter-datetime-duration.js",
+    "./timered-counter-datetime-duration.js": "./dist/src/timered-counter-datetime-duration.js",
+    "./timered-counter-string": "./dist/src/timered-counter-string.js",
+    "./timered-counter-string.js": "./dist/src/timered-counter-string.js",
+    "./timered-counter-number": "./dist/src/timered-counter-number.js",
+    "./timered-counter-number.js": "./dist/src/timered-counter-number.js"
   },
+  "files": [
+    "dist"
+  ],
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "analyze": "cem analyze --litelement",
     "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"web-dev-server\"",
