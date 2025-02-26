@@ -58,6 +58,8 @@ export class TimeredCounterString extends TimeredCounter {
 
   private __valueString = '';
 
+  private __oldValueString = '';
+
   get value() {
     return super.value;
   }
@@ -76,6 +78,7 @@ export class TimeredCounterString extends TimeredCounter {
       return;
     }
 
+    this.__oldValueString = this.__valueString;
     this.__valueString = value ?? '';
 
     if (isEmpty(this.__valueString)) {
@@ -88,6 +91,13 @@ export class TimeredCounterString extends TimeredCounter {
       : this.__decimalToAnyBase(this.numberAdapter.toString(this.value));
 
     this.__updateAlphabet(this.__valueString, oldValueString);
+
+    /**
+     * 由于 oldValue 基于之前的 `__alphabet` 计算, 当 通过 `__updateAlphabet` 更新 `__alphabet` 后, 需要同步更新 oldValue.
+     */
+    super.oldValue = this.numberAdapter.create(
+      this.__anyBaseToDecimal(this.__oldValueString),
+    );
 
     super.value = this.numberAdapter.create(
       this.__anyBaseToDecimal(this.__valueString),

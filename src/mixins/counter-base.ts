@@ -202,7 +202,8 @@ export const CounterBaseMixin = <
           this.oldValue = isNonNullish(this.initialValue)
             ? this.initialValue
             : this.value;
-        } else {
+        } else if (!changedProperties.has('oldValue')) {
+          // oldValue 未被手动设置时, 使用默认策略更新 oldValue.
           this.oldValue = changedProperties.get('value') ?? this.oldValue;
         }
       }
