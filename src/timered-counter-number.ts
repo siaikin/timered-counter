@@ -19,12 +19,12 @@ export class TimeredCounterNumber extends TimeredCounter {
    */
   @property({
     converter: value => {
-      if (isNullish(value)) return value;
+      if (isNullish(value)) return false;
 
       try {
         return JSON.parse(value);
       } catch (error) {
-        return value;
+        return true;
       }
     },
     reflect: true,
@@ -42,7 +42,14 @@ export class TimeredCounterNumber extends TimeredCounter {
    * @see https://en.wikipedia.org/wiki/Decimal_separator
    */
   @state()
-  localDecimalSeparator = '.';
+  localDecimalSeparator = '';
+
+  /**
+   * 本地化数字格式化配置中的分组分隔符.
+   * @see https://en.wikipedia.org/wiki/Decimal_separator#Digit_grouping
+   */
+  @state()
+  localeGroupingSeparator = '';
 
   override sampleToString(value: AvailableNumberAdapterValueType): string {
     return this.localeNumber
@@ -106,12 +113,17 @@ export class TimeredCounterNumber extends TimeredCounter {
        * 本地化数字格式化配置变化时, 更新 `partsOptions` 中的 `decimalSeparator`.
        */
       {
-        const decimalSeparator =
-          this.localeNumberInstance
-            .formatToParts(123456.789)
-            .find(part => part.type === 'decimal')?.value || '.';
+        const numberParts = this.localeNumberInstance.formatToParts(123456.789);
 
-        if (this.localDecimalSeparator !== decimalSeparator) {
+        const decimalSeparator =
+          numberParts.find(part => part.type === 'decimal')?.value || '.';
+        const groupingSeparator =
+          numberParts.find(part => part.type === 'group')?.value || '';
+
+        if (
+          this.localDecimalSeparator !== decimalSeparator ||
+          this.localeGroupingSeparator !== groupingSeparator
+        ) {
           this.localDecimalSeparator = decimalSeparator;
 
           const oldPartsOptions = this.partsOptions;

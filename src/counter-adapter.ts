@@ -44,10 +44,12 @@ export class CounterAdapter {
    */
   static VALUE_CONVERTER = {
     fromAttribute(value: string | null) {
-      return CounterAdapter.NUMBER_ADAPTER.create(isNullish(value) ? 0 : value);
+      return value;
     },
     toAttribute(value: unknown) {
-      return CounterAdapter.NUMBER_ADAPTER.toString(value);
+      return isNullish(value)
+        ? value
+        : CounterAdapter.NUMBER_ADAPTER.toString(value);
     },
   };
 

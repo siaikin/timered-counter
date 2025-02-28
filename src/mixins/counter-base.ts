@@ -99,7 +99,7 @@ export const CounterBaseMixin = <
     }
     // oldValue: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
 
-    private __initialValue: V = CounterAdapter.NUMBER_ADAPTER.create(0);
+    private __initialValue: V | null = null;
 
     /**
      * 如果初始值被设置, 组件初始化时会使用该值而不是 `value`, 然后在初始化完成后, 将内部值更新为 `value`.
@@ -113,10 +113,12 @@ export const CounterBaseMixin = <
       noAccessor: true,
     })
     get initialValue() {
-      return this.numberAdapter.create(this.__initialValue);
+      return isNullish(this.__initialValue)
+        ? this.__initialValue
+        : this.numberAdapter.create(this.__initialValue);
     }
 
-    set initialValue(value: V) {
+    set initialValue(value: V | null) {
       const old = this.__initialValue;
       this.__initialValue = value;
       this.requestUpdate('initialValue', old);
@@ -142,6 +144,7 @@ export const CounterBaseMixin = <
           return value;
         }
       },
+      reflect: true,
       noAccessor: true,
     })
     get locale() {
@@ -185,34 +188,33 @@ export const CounterBaseMixin = <
       this.stringAdapter = CounterAdapter.STRING_ADAPTER;
     }
 
-    /**
-     * 第一次更新时, changedProperties 中 value 的旧值始终为 undefined.
-     * 因此, 当 value 第一次更新时, oldValue 的值应当来自 initialValue 或 value.
-     * 以保证 oldValue 始终有值.
-     * @private
-     */
-    private isValueFirstUpdate = true;
-
     override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
 
-      if (changedProperties.has('value')) {
-        if (this.isValueFirstUpdate) {
-          this.isValueFirstUpdate = false;
-          this.oldValue = isNonNullish(this.initialValue)
-            ? this.initialValue
-            : this.value;
-        } else if (!changedProperties.has('oldValue')) {
-          // oldValue 未被手动设置时, 使用默认策略更新 oldValue.
-          this.oldValue = changedProperties.get('value') ?? this.oldValue;
-        }
+      if (!changedProperties.has('oldValue')) {
+        // oldValue 未被手动设置时, 使用默认策略更新 oldValue.
+        this.oldValue = changedProperties.get('value') ?? this.value;
       }
 
       this.oldDirection = this.direction;
-      this.direction = this.numberAdapter.gt(this.value, this.oldValue)
-        ? 'down'
-        : 'up';
+      if (!this.numberAdapter.eq(this.value, this.oldValue)) {
+        this.direction = this.numberAdapter.gt(this.value, this.oldValue)
+          ? 'down'
+          : 'up';
+      }
       // }
+    }
+
+    /**
+     * oldValue 的默认初始值应当来自 initialValue 或 value.
+     * 以保证 oldValue 始终有值.
+     */
+    override connectedCallback() {
+      super.connectedCallback();
+
+      this.oldValue = isNonNullish(this.initialValue)
+        ? this.initialValue
+        : this.value;
     }
   }
 

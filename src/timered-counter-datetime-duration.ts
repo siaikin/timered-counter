@@ -2,7 +2,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { html, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { isArray, isDate, isNullish, isString, map } from 'remeda';
-import { isValid, toDate } from 'date-fns';
+import { isValid, toDate, isBefore } from 'date-fns';
 import { TimeredCounter } from './timered-counter.js';
 import { AvailableNumberAdapterValueType } from './number-adapter/index.js';
 import { DurationPartMillisecond, DurationPartType } from './types/duration.js';
@@ -35,6 +35,31 @@ function optimizeFrom(from: Date, to: Date, minPrecision: DurationPartType) {
     // 加上 deadlineDate 的余数, 消除精度误差.
     (toTS % minPrecisionMs)
   );
+}
+
+function toDurationInMilliseconds(value: any, minPrecision: DurationPartType) {
+  if (isString(value)) value = parseJsonString(value);
+
+  if (!isArray(value)) value = [value, value];
+
+  const result = [
+    isDate(value[0]) ? value[0] : toDate(value[0]),
+    isDate(value[1]) ? value[1] : toDate(value[1]),
+  ] as const;
+
+  if (!isValid(result[0]) || !isValid(result[1])) {
+    throw new Error(`value ${value[0]} or ${value[1]} is not a valid date.`);
+  }
+
+  const durationInMilliseconds = Math.abs(
+    result[1].getTime() - optimizeFrom(result[0], result[1], minPrecision),
+  );
+
+  return {
+    durationInMilliseconds,
+    from: result[0],
+    to: result[1],
+  };
 }
 
 @customElement('timered-counter-datetime-duration')
@@ -71,6 +96,33 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
     if (isString(value)) value = parseJsonString(value);
 
     this.__precision = value;
+
+    /**
+     * `precision` 相关属性的更新需要立即更新, 以便于在 `value`, `initialValue` 等属性的 setter 中使用.
+     */
+    this.__minPrecision = isArray(this.__precision)
+      ? this.__precision[0]
+      : this.__precision;
+    this.__maxPrecision = isArray(this.__precision)
+      ? this.__precision[1]
+      : this.__precision;
+
+    this.__availableDurationParts = Object.values(DurationPartType)
+      .reverse()
+      .map(type => {
+        const minPrecisionBreakpoint =
+          DurationPartMillisecond[this.__minPrecision];
+        const maxPrecisionBreakpoint =
+          DurationPartMillisecond[this.__maxPrecision];
+        const partMilliseconds = DurationPartMillisecond[type];
+        return {
+          type,
+          available:
+            partMilliseconds >= minPrecisionBreakpoint &&
+            partMilliseconds <= maxPrecisionBreakpoint,
+        };
+      })
+      .filter(part => part.available);
   }
 
   get value() {
@@ -81,22 +133,33 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
    * 通过 property 设置 value 时, 支持 Date 类型.
    */
   set value(value: any) {
-    if (isString(value)) value = parseJsonString(value);
-
-    if (!isArray(value)) value = [value, value];
-
-    this.__from = isDate(value[0]) ? value[0] : toDate(value[0]);
-    this.__to = isDate(value[1]) ? value[1] : toDate(value[1]);
-    if (!isValid(this.__from) || !isValid(this.__to)) {
-      throw new Error(`value ${value[0]} or ${value[1]} is not a valid date.`);
-    }
-
-    this.__durationInMilliseconds = Math.abs(
-      this.__to.getTime() -
-        optimizeFrom(this.__from, this.__to, this.__minPrecision),
+    const { from, to, durationInMilliseconds } = toDurationInMilliseconds(
+      value,
+      this.__minPrecision,
     );
 
-    super.value = this.__durationInMilliseconds;
+    this.__from = from;
+    this.__to = to;
+    super.value = durationInMilliseconds;
+  }
+
+  private __initialValuePlain: any = null;
+
+  get initialValue() {
+    return super.initialValue;
+  }
+
+  /**
+   * 同 value
+   */
+  set initialValue(value: any) {
+    this.__initialValuePlain = value;
+
+    const { durationInMilliseconds } = toDurationInMilliseconds(
+      value,
+      this.__minPrecision,
+    );
+    super.initialValue = durationInMilliseconds;
   }
 
   private __partsOptions: Partial<PartsOptions> | null = null;
@@ -116,8 +179,6 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
   private __from: Date = new Date();
 
   private __to: Date = new Date();
-
-  private __durationInMilliseconds = 0;
 
   private __minPrecision: DurationPartType = DurationPartType.Second;
 
@@ -158,17 +219,34 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
   override generateAriaLabel(): string {
     return iso8601Duration(
       durationObject(
-        new Date(Math.min(this.__durationInMilliseconds, 0)),
-        new Date(Math.max(this.__durationInMilliseconds, 0)),
+        isBefore(this.__from, this.__to) ? this.__from : this.__to,
+        isBefore(this.__from, this.__to) ? this.__to : this.__from,
         map(this.__availableDurationParts, part => part.type),
       ),
     );
   }
 
   override connectedCallback() {
-    super.connectedCallback();
-
     this.role = 'timer';
+
+    /**
+     * TimeredCounterDatetimeDuration 将 `minPlaces` 默认设置为 `[2]`. 实例化时需要手动触发 `partsOptions` 的 setter.
+     */
+    this.partsOptions = this.__partsOptions ?? {};
+
+    this.initialValue = this.__initialValuePlain;
+
+    super.connectedCallback();
+  }
+
+  override willUpdate(_changedProperties: PropertyValues) {
+    super.willUpdate(_changedProperties);
+
+    if (_changedProperties.has('locale')) {
+      this.__dateTimeFieldLabels = getLocalizedDateTimeFields(
+        this.localeInstance,
+      );
+    }
   }
 
   override render() {
@@ -216,56 +294,5 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
         )}
       </timered-counter-roller>
     `;
-  }
-
-  override willUpdate(_changedProperties: PropertyValues) {
-    /**
-     * precision 相关属性的更新需要在 super.willUpdate 之前进行, 以便在 super.willUpdate 中使用到.
-     *
-     * __availableDurationParts 在 sampleSplit 中使用到, 而 sampleSplit 又会在 super.willUpdate 中使用(准确来说是 `CounterPartsMixinClass`).
-     * 所以需要在 super.willUpdate 之前更新.
-     */
-    if (_changedProperties.has('precision')) {
-      this.__minPrecision = isArray(this.precision)
-        ? this.precision[0]
-        : this.precision;
-      this.__maxPrecision = isArray(this.precision)
-        ? this.precision[1]
-        : this.precision;
-
-      this.__availableDurationParts = Object.values(DurationPartType)
-        .reverse()
-        .map(type => {
-          const minPrecisionBreakpoint =
-            DurationPartMillisecond[this.__minPrecision];
-          const maxPrecisionBreakpoint =
-            DurationPartMillisecond[this.__maxPrecision];
-          const partMilliseconds = DurationPartMillisecond[type];
-          return {
-            type,
-            available:
-              partMilliseconds >= minPrecisionBreakpoint &&
-              partMilliseconds <= maxPrecisionBreakpoint,
-          };
-        })
-        .filter(part => part.available);
-    }
-
-    super.willUpdate(_changedProperties);
-
-    if (_changedProperties.has('locale')) {
-      this.__dateTimeFieldLabels = getLocalizedDateTimeFields(
-        this.localeInstance,
-      );
-    }
-  }
-
-  override firstUpdated(_changedProperties: PropertyValues<this>) {
-    super.firstUpdated(_changedProperties);
-
-    /**
-     * TimeredCounterDatetimeDuration 将 `minPlaces` 默认设置为 `[2]`. 实例化时需要手动触发 `partsOptions` 的 setter.
-     */
-    this.partsOptions = this.__partsOptions ?? {};
   }
 }
