@@ -236,6 +236,11 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
 
     this.initialValue = this.__initialValuePlain;
 
+    /**
+     * 类似上方的 partsOptions, precision 也需要在初始化时手动触发 setter. 以此确保 __minPrecision, __maxPrecision, __availableDurationParts 有值.
+     */
+    this.precision = this.__precision;
+
     super.connectedCallback();
   }
 
