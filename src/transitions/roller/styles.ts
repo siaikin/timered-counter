@@ -2,7 +2,6 @@ import { css } from 'lit';
 
 export const rollerStyles = css`
   :host {
-    position: relative;
     display: inline-flex;
     overflow: hidden;
 

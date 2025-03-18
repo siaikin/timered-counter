@@ -2,8 +2,10 @@ import { css } from 'lit';
 
 export const timeredCounterStyles = css`
   :host {
-    display: inline-flex;
+    position: relative;
     white-space: nowrap;
+
+    display: inline-block;
   }
 
   //.timered-counter {
