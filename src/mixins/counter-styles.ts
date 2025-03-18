@@ -4,11 +4,11 @@ import { isDeepEqual } from 'remeda';
 import {
   GroupGetterOptions,
   PartDigitCellGetter,
-  PartDigitCellValue,
+  PartDigitCellValueOrGetter,
   PartDigitGetter,
-  PartDigitValue,
+  PartDigitValueOrGetter,
   PartGetter,
-  PartValue,
+  PartValueOrGetter,
 } from '../types/group.js';
 import {
   extractPartDigitCellOption,
@@ -22,19 +22,19 @@ import { CounterPartsMixin } from './counter-parts.js';
 import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
 export declare class CounterStylesMixinInterface {
-  cellStyles: PartDigitCellValue<Partial<CSSStyleDeclaration>>;
+  cellStyles: PartDigitCellValueOrGetter<Partial<CSSStyleDeclaration>>;
 
   cellStylesDynamic?: PartDigitCellGetter<Partial<CSSStyleDeclaration>>;
 
   extractCellStyles(): Partial<CSSStyleDeclaration>[][][];
 
-  digitStyles: PartDigitValue<Partial<CSSStyleDeclaration>>;
+  digitStyles: PartDigitValueOrGetter<Partial<CSSStyleDeclaration>>;
 
   digitStylesDynamic?: PartDigitGetter<Partial<CSSStyleDeclaration>>;
 
   extractDigitStyles(): Partial<CSSStyleDeclaration>[][];
 
-  partStyles: PartValue<Partial<CSSStyleDeclaration>>;
+  partStyles: PartValueOrGetter<Partial<CSSStyleDeclaration>>;
 
   partStylesDynamic?: PartGetter<Partial<CSSStyleDeclaration>>;
 
@@ -57,7 +57,7 @@ export const CounterStylesMixin = <
      * 你还可以使用 `cellStylesDynamic` 来动态设置样式.
      */
     @property({ type: Object, attribute: 'cell-styles', reflect: true })
-    cellStyles: PartDigitCellValue<Partial<CSSStyleDeclaration>> = {};
+    cellStyles: PartDigitCellValueOrGetter<Partial<CSSStyleDeclaration>> = {};
 
     cellStylesDynamic?: PartDigitCellGetter<Partial<CSSStyleDeclaration>>;
 
@@ -88,7 +88,7 @@ export const CounterStylesMixin = <
      * 你还可以使用 `digitStylesDynamic` 来动态设置样式.
      */
     @property({ type: Object, attribute: 'digit-styles', reflect: true })
-    digitStyles: PartDigitValue<Partial<CSSStyleDeclaration>> = {};
+    digitStyles: PartDigitValueOrGetter<Partial<CSSStyleDeclaration>> = {};
 
     digitStylesDynamic?: PartDigitGetter<Partial<CSSStyleDeclaration>>;
 
@@ -119,7 +119,7 @@ export const CounterStylesMixin = <
      * 你还可以使用 `partStylesDynamic` 来动态设置样式.
      */
     @property({ type: Object, attribute: 'part-styles', reflect: true })
-    partStyles: PartValue<Partial<CSSStyleDeclaration>> = {};
+    partStyles: PartValueOrGetter<Partial<CSSStyleDeclaration>> = {};
 
     partStylesDynamic?: PartGetter<Partial<CSSStyleDeclaration>>;
 

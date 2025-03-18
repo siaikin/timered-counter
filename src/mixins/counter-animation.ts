@@ -4,7 +4,7 @@ import { isDeepEqual } from 'remeda';
 import {
   GroupGetterOptions,
   PartDigitGetter,
-  PartDigitValue,
+  PartDigitValueOrGetter,
 } from '../types/group.js';
 import {
   extractPartDigitOption,
@@ -14,13 +14,13 @@ import { CounterPartsMixin } from './counter-parts.js';
 import { AvailableNumberAdapterValueType } from '../number-adapter/index.js';
 
 export declare class CounterAnimationMixinInterface {
-  animationOptions: PartDigitValue<KeyframeAnimationOptions>;
+  animationOptions: PartDigitValueOrGetter<KeyframeAnimationOptions>;
 
   animationOptionsDynamic?: PartDigitGetter<KeyframeAnimationOptions>;
 
   extractAnimationOptions(): KeyframeAnimationOptions[][];
 
-  keyframes: PartDigitValue<PropertyIndexedKeyframes>;
+  keyframes: PartDigitValueOrGetter<PropertyIndexedKeyframes>;
 
   keyframesDynamic?: PartDigitGetter<PropertyIndexedKeyframes>;
 
@@ -40,7 +40,7 @@ export const CounterAnimationMixin = <
      * 传递给 Web Animations API 的选项.
      */
     @property({ type: Object, attribute: 'animation-options', reflect: true })
-    animationOptions: PartDigitValue<KeyframeAnimationOptions> = {};
+    animationOptions: PartDigitValueOrGetter<KeyframeAnimationOptions> = {};
 
     animationOptionsDynamic?: PartDigitGetter<KeyframeAnimationOptions>;
 
@@ -73,7 +73,7 @@ export const CounterAnimationMixin = <
      * 传递给 Web Animations API 的关键帧配置.
      */
     @property({ type: Object, attribute: 'keyframes', reflect: true })
-    keyframes: PartDigitValue<PropertyIndexedKeyframes> = {};
+    keyframes: PartDigitValueOrGetter<PropertyIndexedKeyframes> = {};
 
     keyframesDynamic?: PartDigitGetter<PropertyIndexedKeyframes>;
 
