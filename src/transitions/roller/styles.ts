@@ -20,7 +20,7 @@ export const rollerStyles = css`
   }
 
   .roller-part .roller-part__suffix {
-    //display: inline-block;
+    display: inline-block;
   }
 `;
 

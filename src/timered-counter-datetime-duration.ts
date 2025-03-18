@@ -284,10 +284,8 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
         .direction=${this.direction}
         @roller-animation-start=${this.dispatchTimeredCounterAnimationStart}
         @roller-animation-end=${this.dispatchTimeredCounterAnimationEnd}
-      >
-        <slot name="prefix" slot="prefix"></slot>
-        <slot name="suffix" slot="suffix"></slot>
-        ${repeat(
+        ><slot name="prefix" slot="prefix"></slot
+        ><slot name="suffix" slot="suffix"></slot>${repeat(
           this.parts,
           (_, index) => index,
           (_, partIndex) =>

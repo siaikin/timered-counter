@@ -58,8 +58,7 @@ export class TimeredCounterRoller extends LitElement {
   private __mergedDigitStyles: Partial<CSSStyleDeclaration>[][] = [];
 
   protected render() {
-    return html`
-      <span
+    return html` <span
         class="roller__prefix"
         data-part-id="-1"
         data-digit-id="0"
@@ -75,61 +74,53 @@ export class TimeredCounterRoller extends LitElement {
           (_, index) => index,
           (part, partIndex) =>
             html`<span class="roller-part"
-                >${repeat(
-                  part.digits,
-                  (_, index) => `${part.digits.length - index}`,
-                  (digitInfo, digitIndex) =>
-                    html`<span
-                      class="roller-part__wrapper"
-                      data-part-id="${partIndex}"
-                      data-digit-id="${digitIndex}"
-                    >
-                      <timered-counter-roller-digit
-                        .digit=${digitInfo}
-                        .preprocessData=${this.partPreprocessDataList[
-                          partIndex
-                        ][digitIndex]}
-                        .direction=${this.direction}
-                        .textStyle=${this.__mergedDigitStyles[partIndex][
-                          digitIndex
-                        ]}
-                        .cellStyle=${this.cellStyles[partIndex][digitIndex]}
-                        .animationOptions=${this.animationOptions[partIndex][
-                          digitIndex
-                        ]}
-                        .keyframes=${this.keyframes[partIndex][digitIndex]}
-                        @roller-digit-animation-end=${this
-                          .__handleDigitAnimationEnd}
-                      ></timered-counter-roller-digit>
-                    </span>`,
-                )}</span
-              >
-              <span
+              >${repeat(
+                part.digits,
+                (_, index) => `${part.digits.length - index}`,
+                (digitInfo, digitIndex) =>
+                  html`<timered-counter-roller-digit
+                    class="roller-part__wrapper"
+                    data-part-id="${partIndex}"
+                    data-digit-id="${digitIndex}"
+                    .digit=${digitInfo}
+                    .preprocessData=${this.partPreprocessDataList[partIndex][
+                      digitIndex
+                    ]}
+                    .direction=${this.direction}
+                    .textStyle=${this.__mergedDigitStyles[partIndex][
+                      digitIndex
+                    ]}
+                    .cellStyle=${this.cellStyles[partIndex][digitIndex]}
+                    .animationOptions=${this.animationOptions[partIndex][
+                      digitIndex
+                    ]}
+                    .keyframes=${this.keyframes[partIndex][digitIndex]}
+                    @roller-digit-animation-end=${this
+                      .__handleDigitAnimationEnd}
+                  ></timered-counter-roller-digit>`,
+              )}${html`<span
                 class="roller-part__suffix"
                 data-part-id="${partIndex}"
                 data-digit-id="-1"
                 style=${styleMap(
                   (this.__mergedDigitStyles[partIndex][-1] ?? {}) as StyleInfo,
                 )}
-              >
-                <slot
+                ><slot
                   part="part-suffix"
                   name=${`part-suffix-${partIndex}`}
-                ></slot>
-              </span>`,
-        )}
-      </span>
-      <span
+                ></slot
+              ></span>`}</span
+            > `,
+        )}</span
+      ><span
         class="roller__suffix"
         data-part-id="-2"
         data-digit-id="0"
         style=${styleMap(
           (this.__mergedDigitStyles[-2]?.[0] ?? {}) as StyleInfo,
         )}
-      >
-        <slot part="suffix" name="suffix"></slot>
-      </span>
-    `;
+        ><slot part="suffix" name="suffix"></slot
+      ></span>`;
   }
 
   protected willUpdate(_changedProperties: PropertyValues) {
