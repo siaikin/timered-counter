@@ -59,7 +59,8 @@ export class TimeredCounter extends CounterAiraMixin(
 
     return html`
       <timered-counter-roller
-        exportparts="prefix, suffix, part-suffix"
+        exportparts="group, part, digit, cell, prefix, suffix, part-suffix"
+        part="group"
         class="timered-counter"
         aria-hidden="true"
         color=${this.color}

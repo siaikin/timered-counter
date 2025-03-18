@@ -120,93 +120,85 @@ export class TimeredCounterRollerDigit extends LitElement {
       omit(style, ['position']),
     );
 
-    return html`
-      <span class="roller-part-digit">
-        <!--    占位      -->
-        <span
-          class="placeholder"
-          style=${styleMap({ width: `${Math.round(this.digitWidth)}px` })}
-        >
-          0
-        </span>
-        <!--  一个不可见的滚动列表的复制, 用于计算该列表的最大宽度.  -->
-        <span class="roll-list__shadow">
-          ${repeat(
-            this.digit.data,
-            (_, index) => index,
-            (digit, index) => html`
-              <span style=${styleMap(shadowCellStyle[index] as StyleInfo)}>
-                ${digit}
-              </span>
-            `,
-          )}
-        </span>
-        <span
-          class=${classMap({
-            /**
-             * 向上(up)滚动时, 使滚动列表顶部对齐以便于应用 `translationY(-100%)` 实现向上滚动效果
-             * 向下同理
-             */
-            'roll-list__up': this.direction === 'up',
-            'roll-list__down': this.direction === 'down',
-            'roll-list': true,
-          })}
-        >
-          ${this.digit.data.length > 1
-            ? repeat(
-                this.digit.data,
-                (_, index) => index,
-                (digit, index) => {
-                  if (
-                    this.direction === 'up' &&
-                    index === this.digit.data.length - 1
-                  ) {
-                    return html`<span
-                      class="roll-item roll-item__head"
-                      style=${styleMap(this.cellStyle[index] as StyleInfo)}
-                    >
-                      <span style=${styleMap(this.textStyle as StyleInfo)}
-                        >${digit}</span
-                      >
-                    </span>`;
-                  }
-                  if (this.direction === 'down' && index === 0) {
-                    return html`
-                      <span
-                        class="roll-item roll-item__tail"
-                        style=${styleMap(this.cellStyle[index] as StyleInfo)}
-                      >
-                        <span style=${styleMap(this.textStyle as StyleInfo)}
-                          >${digit}</span
-                        >
-                      </span>
-                    `;
-                  }
+    return html`<span class="roller-part-digit">
+      <!--    占位      -->
+      <span
+        class="placeholder"
+        style=${styleMap({ width: `${Math.round(this.digitWidth)}px` })}
+        >0</span
+      >
+      <!--  一个不可见的滚动列表的复制, 用于计算该列表的最大宽度.  -->
+      <span class="roll-list__shadow">
+        ${repeat(
+          this.digit.data,
+          (_, index) => index,
+          (digit, index) =>
+            html`<span style=${styleMap(shadowCellStyle[index] as StyleInfo)}
+              >${digit}</span
+            >`,
+        )}
+      </span>
+      <span
+        class=${classMap({
+          /**
+           * 向上(up)滚动时, 使滚动列表顶部对齐以便于应用 `translationY(-100%)` 实现向上滚动效果
+           * 向下同理
+           */
+          'roll-list__up': this.direction === 'up',
+          'roll-list__down': this.direction === 'down',
+          'roll-list': true,
+        })}
+      >
+        ${this.digit.data.length > 1
+          ? repeat(
+              this.digit.data,
+              (_, index) => index,
+              (digit, index) => {
+                if (
+                  this.direction === 'up' &&
+                  index === this.digit.data.length - 1
+                ) {
+                  return html`<span
+                    part="cell"
+                    class="roll-item roll-item__head"
+                    style=${styleMap(this.cellStyle[index] as StyleInfo)}
+                    ><span style=${styleMap(this.textStyle as StyleInfo)}
+                      >${digit}</span
+                    ></span
+                  >`;
+                }
+                if (this.direction === 'down' && index === 0) {
                   return html`
                     <span
-                      class="roll-item"
+                      part="cell"
+                      class="roll-item roll-item__tail"
                       style=${styleMap(this.cellStyle[index] as StyleInfo)}
-                    >
-                      <span style=${styleMap(this.textStyle as StyleInfo)}
+                      ><span style=${styleMap(this.textStyle as StyleInfo)}
                         >${digit}</span
-                      >
-                    </span>
+                      ></span
+                    >
                   `;
-                },
-              )
-            : html`
-                <span
+                }
+                return html`<span
+                  part="cell"
                   class="roll-item"
-                  style=${styleMap(this.cellStyle[0] as StyleInfo)}
-                >
-                  <span style=${styleMap(this.textStyle as StyleInfo)}
-                    >${this.digit.data[0]}</span
-                  >
-                </span>
-              `}
-        </span>
-      </span>
-    `;
+                  style=${styleMap(this.cellStyle[index] as StyleInfo)}
+                  ><span style=${styleMap(this.textStyle as StyleInfo)}
+                    >${digit}</span
+                  ></span
+                >`;
+              },
+            )
+          : html`<span
+              part="cell"
+              class="roll-item"
+              style=${styleMap(this.cellStyle[0] as StyleInfo)}
+              ><span style=${styleMap(this.textStyle as StyleInfo)}
+                >${this.digit.data[0]}</span
+              ></span
+            >`}</span
+      ></span
+    > `;
   }
 
   shouldAnimate() {

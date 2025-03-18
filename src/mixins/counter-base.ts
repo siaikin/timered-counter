@@ -212,8 +212,8 @@ export const CounterBaseMixin = <
      * oldValue 的默认初始值应当来自 initialValue 或 value.
      * 以保证 oldValue 始终有值.
      */
-    override connectedCallback() {
-      super.connectedCallback();
+    override firstUpdated(changedProperties: PropertyValues<this>) {
+      super.firstUpdated(changedProperties);
 
       this.oldValue = isNonNullish(this.initialValue)
         ? this.initialValue

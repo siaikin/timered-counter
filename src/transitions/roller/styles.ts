@@ -1,12 +1,26 @@
 import { css } from 'lit';
 
 export const rollerStyles = css`
+  :host {
+    position: relative;
+    display: inline-flex;
+    overflow: hidden;
+
+    /**
+        inline-block 和 overflow-hidden 同时存在会使得基线为下边缘. 手动设置 align-bottom 以修正这个问题.
+        @see https://stackoverflow.com/questions/22421782/css-overflow-hidden-increases-height-of-container
+        @see https://www.w3.org/TR/CSS2/visudet.html#propdef-vertical-align
+    */
+    vertical-align: bottom;
+  }
+
   .counter-parts {
     display: inline-flex;
     flex: 1 1 auto;
   }
 
   .roller-part {
+    display: inline-flex;
     white-space: nowrap;
   }
 
@@ -55,6 +69,8 @@ export const rollerDigitStyles = css`
   .roll-list__shadow {
     visibility: hidden;
     position: absolute;
+    left: 0;
+    top: 0;
     z-index: -10;
     display: inline-flex;
     flex-direction: column;

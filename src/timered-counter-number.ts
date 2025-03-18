@@ -69,7 +69,8 @@ export class TimeredCounterNumber extends TimeredCounter {
     return html`
       <timered-counter-roller
         class="timered-counter timered-counter-datetime-duration"
-        exportparts="prefix, suffix, part-suffix"
+        exportparts="group, part, digit, cell, prefix, suffix, part-suffix"
+        part="group"
         aria-hidden="true"
         color=${this.color}
         .parentContainerRect=${this.partsContainerRect}

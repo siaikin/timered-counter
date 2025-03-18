@@ -2,12 +2,11 @@ import { html, LitElement, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, property, query } from 'lit/decorators.js';
 import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
-import { clone, isNumber, values } from 'remeda';
+import { isNumber, values } from 'remeda';
 import { PartData } from '../../types/group.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import './roller-digit.js';
 import { rollerStyles } from './styles.js';
-import { mergePartDigitOption } from '../../utils/extract-group-option.js';
 
 class RollerAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {
@@ -55,15 +54,15 @@ export class TimeredCounterRoller extends LitElement {
   @query('.roller__suffix')
   suffixContainer: HTMLElement | undefined;
 
-  private __mergedDigitStyles: Partial<CSSStyleDeclaration>[][] = [];
+  private __partDigitsColorStyles: Partial<CSSStyleDeclaration>[][] = [];
 
   protected render() {
-    return html` <span
+    return html`<span
         class="roller__prefix"
         data-part-id="-1"
         data-digit-id="0"
         style=${styleMap(
-          (this.__mergedDigitStyles[-1]?.[0] ?? {}) as StyleInfo,
+          (this.__partDigitsColorStyles?.[-1]?.[0] ?? {}) as StyleInfo,
         )}
       >
         <slot part="prefix" name="prefix"></slot>
@@ -73,13 +72,24 @@ export class TimeredCounterRoller extends LitElement {
           this.parts,
           (_, index) => index,
           (part, partIndex) =>
-            html`<span class="roller-part"
+            html`<span
+              part="part"
+              class="roller-part"
+              style=${styleMap(
+                (this.partStyles?.[partIndex] ?? {}) as StyleInfo,
+              )}
               >${repeat(
                 part.digits,
                 (_, index) => `${part.digits.length - index}`,
                 (digitInfo, digitIndex) =>
                   html`<timered-counter-roller-digit
+                    exportparts="digit, cell"
+                    part="digit"
                     class="roller-part__wrapper"
+                    style=${styleMap(
+                      (this.digitStyles?.[partIndex]?.[digitIndex] ??
+                        {}) as StyleInfo,
+                    )}
                     data-part-id="${partIndex}"
                     data-digit-id="${digitIndex}"
                     .digit=${digitInfo}
@@ -87,9 +97,9 @@ export class TimeredCounterRoller extends LitElement {
                       digitIndex
                     ]}
                     .direction=${this.direction}
-                    .textStyle=${this.__mergedDigitStyles[partIndex][
+                    .textStyle=${this.__partDigitsColorStyles?.[partIndex]?.[
                       digitIndex
-                    ]}
+                    ] ?? {}}
                     .cellStyle=${this.cellStyles[partIndex][digitIndex]}
                     .animationOptions=${this.animationOptions[partIndex][
                       digitIndex
@@ -103,7 +113,8 @@ export class TimeredCounterRoller extends LitElement {
                 data-part-id="${partIndex}"
                 data-digit-id="-1"
                 style=${styleMap(
-                  (this.__mergedDigitStyles[partIndex][-1] ?? {}) as StyleInfo,
+                  (this.__partDigitsColorStyles?.[partIndex]?.[-1] ??
+                    {}) as StyleInfo,
                 )}
                 ><slot
                   part="part-suffix"
@@ -117,7 +128,7 @@ export class TimeredCounterRoller extends LitElement {
         data-part-id="-2"
         data-digit-id="0"
         style=${styleMap(
-          (this.__mergedDigitStyles[-2]?.[0] ?? {}) as StyleInfo,
+          (this.__partDigitsColorStyles?.[-2]?.[0] ?? {}) as StyleInfo,
         )}
         ><slot part="suffix" name="suffix"></slot
       ></span>`;
@@ -140,13 +151,7 @@ export class TimeredCounterRoller extends LitElement {
       }
     }
 
-    /**
-     * 将 color 样式合并到 digitStyles 中.
-     */
-    this.__mergedDigitStyles = mergePartDigitOption(
-      clone(this.digitStyles),
-      this.__generatePartDigitsColorStyles(),
-    );
+    this.__partDigitsColorStyles = this.__generatePartDigitsColorStyles();
   }
 
   /**
