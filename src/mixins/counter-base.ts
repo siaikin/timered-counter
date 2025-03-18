@@ -191,7 +191,10 @@ export const CounterBaseMixin = <
     override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
 
-      if (!changedProperties.has('oldValue')) {
+      if (
+        changedProperties.has('value') &&
+        !changedProperties.has('oldValue')
+      ) {
         // oldValue 未被手动设置时, 使用默认策略更新 oldValue.
         this.oldValue = changedProperties.get('value') ?? this.value;
       }
