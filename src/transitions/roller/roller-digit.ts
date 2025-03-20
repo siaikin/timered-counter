@@ -15,7 +15,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import { PartDataDigit } from '../../types/group.js';
 import { rollerDigitStyles } from './styles.js';
-import * as EasingFunctions from '../../easing/index.js';
+import * as EasingFunctions from '../../easing/penner-easing-functions.js';
 
 class RollerDigitAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {

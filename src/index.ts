@@ -31,6 +31,9 @@ export {
   TimeredCounterString,
 };
 
+export * from './easing/index.js';
+export * from './types/index.js';
+
 declare global {
   interface HTMLElementTagNameMap {
     'timered-counter': TimeredCounter;
