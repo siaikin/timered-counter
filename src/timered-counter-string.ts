@@ -164,8 +164,6 @@ export class TimeredCounterString extends TimeredCounter {
   }
 
   override connectedCallback() {
-    super.connectedCallback();
-
     this.__updateAlphabet(this.__valueString, this.__initialValueString);
     this.initialValue = this.__initialValueString;
     this.value = this.__valueString;
@@ -174,5 +172,8 @@ export class TimeredCounterString extends TimeredCounter {
      * TimeredCounterString 有自定义的 `fillChar` 和 `digitToChar`. 实例化时需要手动触发 `partsOptions` 的 setter.
      */
     this.partsOptions = this.__partsOptions ?? {};
+
+    super.connectedCallback();
+    console.log('as');
   }
 }
