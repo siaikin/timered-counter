@@ -160,12 +160,22 @@ export const CounterPartsMixin = <
     override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
 
+      if (changedProperties.has('value')) {
+        this.oldParts = this.parts;
+      }
+
+      /**
+       * {@link processPartData} 依赖 {@link partsOptions} 和 {@link value} 生成数据.
+       * 当依赖项没有变化时, 不需要重新生成数据.
+       */
       if (
         changedProperties.has('value') ||
         changedProperties.has('partsOptions')
       ) {
-        this.oldParts = this.parts;
         this.parts = this.processPartData();
+      }
+
+      if (changedProperties.has('value')) {
         this.partPreprocessDataList = preprocessPartData(
           this.direction,
           this.parts,
