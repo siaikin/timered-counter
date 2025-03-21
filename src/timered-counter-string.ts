@@ -174,6 +174,5 @@ export class TimeredCounterString extends TimeredCounter {
     this.partsOptions = this.__partsOptions ?? {};
 
     super.connectedCallback();
-    console.log('as');
   }
 }

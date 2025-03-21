@@ -73,7 +73,7 @@
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.2",
     "storybook": "^8.5.0",
-    "tslib": "^2.6.3",
+    "tslib": "^2.8.1",
     "type-fest": "^4.32.0",
     "typescript": "^5.5.3"
   },
