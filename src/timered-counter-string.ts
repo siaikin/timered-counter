@@ -1,5 +1,4 @@
 import { customElement } from 'lit/decorators.js';
-import { PropertyValues } from 'lit';
 import { isEmpty, isString } from 'remeda';
 import { TimeredCounter } from './timered-counter.js';
 import { timeredCounterStringStyles } from './styles/timered-counter-string-styles.js';
@@ -170,10 +169,6 @@ export class TimeredCounterString extends TimeredCounter {
     this.__updateAlphabet(this.__valueString, this.__initialValueString);
     this.initialValue = this.__initialValueString;
     this.value = this.__valueString;
-  }
-
-  override firstUpdated(_changedProperties: PropertyValues<this>) {
-    super.firstUpdated(_changedProperties);
 
     /**
      * TimeredCounterString 有自定义的 `fillChar` 和 `digitToChar`. 实例化时需要手动触发 `partsOptions` 的 setter.

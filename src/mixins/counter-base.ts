@@ -205,15 +205,14 @@ export const CounterBaseMixin = <
           ? 'down'
           : 'up';
       }
-      // }
     }
 
     /**
      * oldValue 的默认初始值应当来自 initialValue 或 value.
      * 以保证 oldValue 始终有值.
      */
-    override firstUpdated(changedProperties: PropertyValues<this>) {
-      super.firstUpdated(changedProperties);
+    override connectedCallback() {
+      super.connectedCallback();
 
       this.oldValue = isNonNullish(this.initialValue)
         ? this.initialValue
