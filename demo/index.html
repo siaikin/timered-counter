@@ -3,41 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <style>
-    body {
-      background: #fafafa;
-  , 10  }
-  </style>
+  <script src="../dist/timered-counter.global.js"></script>
 </head>
 <body>
   <div id="demo" style="font-size: 36px; text-align: center;">
-    <timered-counter value="10000">
-    </timered-counter>
-    <button onclick="add()">Add</button>
-    <button onclick="sub()">Sub</button>
+    <timered-counter-number value="10000" initial-value="24">
+    </timered-counter-number>
   </div>
-
-  <script type="module">
-    import '../dist/src/index.js';
-
-    // render(
-    //   html`
-    //     <timered-counter value="${}">
-    //       some light-dom
-    //     </timered-counter>
-    //   `,
-    //   document.querySelector('#demo')
-    // );
-  </script>
-<script type="application/ecmascript">
-  function add() {
-    const counter = document.querySelector('timered-counter');
-
-    counter.value = 10;
-    // counter.setAttribute('value', (Number.parseInt(counter.value, 10) + 1).toString(10));
-    // counter.value = Math.floor(Math.random() * 1000000)
-  }
-
-</script>
 </body>
 </html>
