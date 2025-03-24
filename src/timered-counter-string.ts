@@ -45,13 +45,20 @@ export class TimeredCounterString extends TimeredCounter {
 
     this.__initialValueString = value ?? '';
 
-    if (isEmpty(this.__alphabet) || isEmpty(this.__initialValueString)) {
+    if (isEmpty(this.__initialValueString)) {
       super.initialValue = this.numberAdapter.create(0);
       return;
     }
 
+    /**
+     * `initialValue` 在初始化时会被赋值给 `oldValue`, 因此, 同步更新逻辑与 `value` 的 setter 一致.
+     */
+    this.__updateAlphabet(this.__valueString, this.__initialValueString);
     super.initialValue = this.numberAdapter.create(
-      this.__anyBaseToDecimal(value),
+      this.__anyBaseToDecimal(this.__initialValueString),
+    );
+    super.value = this.numberAdapter.create(
+      this.__anyBaseToDecimal(this.__valueString),
     );
   }
 
@@ -85,17 +92,15 @@ export class TimeredCounterString extends TimeredCounter {
       return;
     }
 
-    const oldValueString = this.__oldValueString || this.__initialValueString;
-
-    this.__updateAlphabet(this.__valueString, oldValueString);
-
     /**
-     * 由于 oldValue 基于之前的 `__alphabet` 计算, 当 通过 `__updateAlphabet` 更新 `__alphabet` 后, 需要同步更新 oldValue.
+     * 传入的 value 通过 `__anyBaseToDecimal` 转换为十进制数值, `__anyBaseToDecimal` 则基于 `__alphabet` 计算.
+     * 因此, 当 `__alphabet` 更新时, 需要重新计算 `value` 和 `oldValue` 的值.
+     * 以确保 `value` 和 `oldValue` 能够通过 `__decimalToAnyBase` 转换为原始字符串.
      */
+    this.__updateAlphabet(this.__valueString, this.__oldValueString);
     super.oldValue = this.numberAdapter.create(
-      this.__anyBaseToDecimal(oldValueString),
+      this.__anyBaseToDecimal(this.__oldValueString),
     );
-
     super.value = this.numberAdapter.create(
       this.__anyBaseToDecimal(this.__valueString),
     );

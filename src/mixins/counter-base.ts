@@ -82,6 +82,11 @@ export const CounterBaseMixin = <
 
     private __oldValue: V = CounterAdapter.NUMBER_ADAPTER.create(0);
 
+    /**
+     * 用于记录上一次的值.
+     *
+     * 初始化时({@link connectedCallback}), oldValue 将被设置为 `initialValue` 或 `value` 的值.
+     */
     @property({
       attribute: 'old-value',
       reflect: true,
@@ -102,7 +107,7 @@ export const CounterBaseMixin = <
     private __initialValue: V | null = null;
 
     /**
-     * 如果初始值被设置, 组件初始化时会使用该值而不是 `value`, 然后在初始化完成后, 将内部值更新为 `value`.
+     * 如果初始值被设置, {@link oldValue} 的初始值, 会使用该值而不是 `value`.
      *
      * 这对于初始化完成后启动动画效果非常有用.
      */
