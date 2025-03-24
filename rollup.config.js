@@ -40,7 +40,7 @@ export default {
     },
     {
       file: './dist/timered-counter.global.js',
-      format: 'iife',
+      format: 'umd',
       name: 'TimeredCounter',
       sourcemap: true,
     },
