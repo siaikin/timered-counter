@@ -3,7 +3,7 @@
   "description": "Webcomponent timered-counter following open-wc recommendations",
   "license": "MIT",
   "author": "timered-counter",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "type": "module",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
