@@ -1,12 +1,14 @@
 {
   "name": "timered-counter",
-  "description": "Webcomponent timered-counter following open-wc recommendations",
+  "description": "Make the value change more vivid and natural",
   "license": "MIT",
   "author": "timered-counter",
   "version": "0.0.9",
   "type": "module",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
+  "unpkg": "dist/timered-counter.global.js",
+  "jsdelivr": "dist/timered-counter.global.js",
   "exports": {
     ".": "./dist/src/index.js",
     "./timered-counter.js": "./dist/src/timered-counter.js",
@@ -21,6 +23,14 @@
     "dist"
   ],
   "types": "dist/src/index.d.ts",
+  "keywords": [
+    "timered-counter",
+    "counter",
+    "timer",
+    "countdown",
+    "web-components",
+    "lit"
+  ],
   "scripts": {
     "analyze": "cem analyze --litelement",
     "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"web-dev-server\"",
