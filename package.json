@@ -3,7 +3,7 @@
   "description": "Make the value change more vivid and natural",
   "license": "MIT",
   "author": "timered-counter",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "type": "module",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
