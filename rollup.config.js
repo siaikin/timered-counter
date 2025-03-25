@@ -1,14 +1,15 @@
 // Import rollup plugins
 // import { copy } from '@web/rollup-plugin-copy';
-import 'rollup';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import summary from 'rollup-plugin-summary';
 import { visualizer } from 'rollup-plugin-visualizer';
+import commonjs from '@rollup/plugin-commonjs';
 
 export default {
   input: './dist/src/index.js',
   plugins: [
+    commonjs(),
     // Resolve bare module specifiers to relative paths
     nodeResolve(),
     // Minify JS

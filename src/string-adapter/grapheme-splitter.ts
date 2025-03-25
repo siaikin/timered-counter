@@ -1,4 +1,3 @@
-// @ts-ignore
 import GraphemeSplitter from 'grapheme-splitter';
 import { StringAdapter } from './types.js';
 
