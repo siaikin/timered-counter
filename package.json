@@ -2,7 +2,6 @@
   "name": "timered-counter",
   "description": "Make the value change more vivid and natural",
   "license": "MIT",
-  "author": "timered-counter",
   "version": "0.1.1",
   "type": "module",
   "main": "dist/src/index.js",
@@ -31,6 +30,18 @@
     "web-components",
     "lit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:siaikin/timered-counter.git"
+  },
+  "author": {
+    "name": "siaikin",
+    "email": "abc1310054026@outlook.com"
+  },
+  "bugs": {
+    "url": "https://github.com/siaikin/timered-counter/issues"
+  },
+  "homepage": "https://github.com/siaikin/timered-counter#readme",
   "scripts": {
     "analyze": "cem analyze --litelement",
     "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"web-dev-server\"",
