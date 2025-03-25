@@ -19,7 +19,8 @@
     "./timered-counter-number.js": "./dist/src/timered-counter-number.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "custom-elements.json"
   ],
   "types": "dist/src/index.d.ts",
   "keywords": [
@@ -45,7 +46,7 @@
   "scripts": {
     "analyze": "cem analyze --litelement",
     "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"web-dev-server\"",
-    "build": "tsc && rollup -c && npm run analyze -- --exclude dist",
+    "build": "npm run analyze -- --exclude dist && tsc && rollup -c",
     "prepublish": "npm run build",
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",
