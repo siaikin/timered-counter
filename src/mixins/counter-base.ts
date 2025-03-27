@@ -7,7 +7,7 @@ import {
   AvailableNumberAdapterValueType,
 } from '../number-adapter/index.js';
 import { StringAdapter } from '../string-adapter/index.js';
-import { CounterAdapter } from '../counter-adapter.js';
+import { TimeredCounterAdapter } from '../timered-counter-adapter.js';
 
 export declare class CounterBaseMixinInterface<
   V extends AvailableNumberAdapterValueType,
@@ -50,13 +50,13 @@ export const CounterBaseMixin = <
   superClass: T,
 ) => {
   class CounterBaseMixinClass extends superClass {
-    private __value: V = CounterAdapter.NUMBER_ADAPTER.create(0);
+    private __value: V = TimeredCounterAdapter.NUMBER_ADAPTER.create(0);
 
     @property({
       attribute: 'value',
       reflect: true,
       converter: {
-        toAttribute: CounterAdapter.VALUE_CONVERTER.toAttribute,
+        toAttribute: TimeredCounterAdapter.VALUE_CONVERTER.toAttribute,
       },
       noAccessor: true,
     })
@@ -65,7 +65,7 @@ export const CounterBaseMixin = <
     }
 
     set value(value: V) {
-      value = CounterAdapter.NUMBER_ADAPTER.create(
+      value = TimeredCounterAdapter.NUMBER_ADAPTER.create(
         isNullish(value) || (isString(value) && value.trim() === '')
           ? 0
           : value,
@@ -80,7 +80,7 @@ export const CounterBaseMixin = <
     }
     // value: V = CounterBaseMixinClass.NUMBER_ADAPTER.create(0);
 
-    private __oldValue: V = CounterAdapter.NUMBER_ADAPTER.create(0);
+    private __oldValue: V = TimeredCounterAdapter.NUMBER_ADAPTER.create(0);
 
     /**
      * 用于记录上一次的值.
@@ -90,7 +90,7 @@ export const CounterBaseMixin = <
     @property({
       attribute: 'old-value',
       reflect: true,
-      converter: CounterAdapter.VALUE_CONVERTER,
+      converter: TimeredCounterAdapter.VALUE_CONVERTER,
       noAccessor: true,
     })
     get oldValue() {
@@ -114,7 +114,7 @@ export const CounterBaseMixin = <
     @property({
       attribute: 'initial-value',
       reflect: true,
-      converter: CounterAdapter.VALUE_CONVERTER,
+      converter: TimeredCounterAdapter.VALUE_CONVERTER,
       noAccessor: true,
     })
     get initialValue() {
@@ -188,9 +188,9 @@ export const CounterBaseMixin = <
       super(...args);
 
       // @ts-ignore
-      this.numberAdapter = CounterAdapter.NUMBER_ADAPTER;
+      this.numberAdapter = TimeredCounterAdapter.NUMBER_ADAPTER;
       // @ts-ignore
-      this.stringAdapter = CounterAdapter.STRING_ADAPTER;
+      this.stringAdapter = TimeredCounterAdapter.STRING_ADAPTER;
     }
 
     override willUpdate(changedProperties: PropertyValues<this>) {

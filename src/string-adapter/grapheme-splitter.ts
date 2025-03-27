@@ -1,5 +1,6 @@
 import GraphemeSplitter from 'grapheme-splitter';
 import { StringAdapter } from './types.js';
+import type { TimeredCounterAdapter } from '../timered-counter-adapter.js';
 
 /**
  * 使用 `grapheme-splitter` 库的字符串适配器. 该适配器使用 `grapheme-splitter` 库将字符串转换为字符数组.
@@ -16,4 +17,15 @@ const GraphemeSplitterAdapter: () => StringAdapter = () => {
   };
 };
 
+export function register(counterAdapter: typeof TimeredCounterAdapter) {
+  counterAdapter.registerStringAdapter(['grapheme-splitter'], () =>
+    GraphemeSplitterAdapter(),
+  );
+}
+
 export { GraphemeSplitterAdapter };
+
+export default {
+  register,
+  GraphemeSplitterAdapter,
+};

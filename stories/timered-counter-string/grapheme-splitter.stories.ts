@@ -8,11 +8,12 @@ import { range } from 'remeda';
 import { faker } from '@faker-js/faker';
 import customElementsManifest from '../../custom-elements.json' with { type: 'json' };
 import {
-  setNumberAdapter,
-  setStringAdapter,
+  TimeredCounterAdapter,
   type TimeredCounter,
   TimeredCounterString,
 } from '../../src/index.js';
+import DecimalJsNumberAdapter from '../../src/number-adapter/decimal-js.js';
+import GraphemeSplitterStringAdapter from '../../src/string-adapter/grapheme-splitter.js';
 import { bigNumber } from '../story-parts/big-number.js';
 import { setByAttr, setByProp } from '../utils/index.js';
 import { animationEvents } from '../story-parts/animation-events.js';
@@ -34,8 +35,11 @@ const meta: Meta = {
     controls: { expanded: true },
   },
   beforeEach: () => {
-    setNumberAdapter('decimal.js');
-    setStringAdapter('grapheme-splitter');
+    TimeredCounterAdapter.registryAdapter(DecimalJsNumberAdapter);
+    TimeredCounterAdapter.registryAdapter(GraphemeSplitterStringAdapter);
+
+    TimeredCounterAdapter.setNumberAdapter('decimal.js');
+    TimeredCounterAdapter.setStringAdapter('grapheme-splitter');
   },
 };
 export default meta;

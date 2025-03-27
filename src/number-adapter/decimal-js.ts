@@ -1,6 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { isString } from 'remeda';
-import { NumberAdapter } from './types.js';
+import type { NumberAdapter } from './types.js';
+import type { TimeredCounterAdapter } from '../timered-counter-adapter.js';
 
 const numberRegex = /^-?\d+(\.\d+)?$/;
 
@@ -88,4 +89,19 @@ const DecimalJsAdapter: (config?: Decimal.Config) => NumberAdapter<Decimal> = (
   };
 };
 
+export function register(
+  counterAdapter: typeof TimeredCounterAdapter,
+  config?: Decimal.Config,
+) {
+  counterAdapter.registerNumberAdapter(
+    ['decimal.js', 'decimal-js', 'decimaljs'],
+    () => DecimalJsAdapter(config),
+  );
+}
+
 export { DecimalJsAdapter };
+
+export default {
+  register,
+  DecimalJsAdapter,
+};

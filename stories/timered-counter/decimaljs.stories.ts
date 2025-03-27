@@ -4,7 +4,8 @@ import {
   StoryObj,
 } from '@storybook/web-components';
 import customElementsManifest from '../../custom-elements.json' with { type: 'json' };
-import { setNumberAdapter, type TimeredCounter } from '../../src/index.js';
+import { TimeredCounterAdapter, type TimeredCounter } from '../../src/index.js';
+import DecimalJsNumberAdapter from '../../src/number-adapter/decimal-js.js';
 import { bigNumber } from '../story-parts/big-number.js';
 import { setByAttr, setByProp } from '../utils/index.js';
 
@@ -18,7 +19,8 @@ const meta: Meta = {
     controls: { expanded: true },
   },
   beforeEach: () => {
-    setNumberAdapter('decimal.js');
+    TimeredCounterAdapter.registryAdapter(DecimalJsNumberAdapter);
+    TimeredCounterAdapter.setNumberAdapter('decimal.js');
   },
 };
 export default meta;
