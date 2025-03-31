@@ -30,6 +30,7 @@ export const rollerStyles = css`
 
   .roller-part .roller-part__wrapper {
     display: inline-block;
+    text-align: center;
   }
 
   .roller-part .roller-part__suffix {
