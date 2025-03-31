@@ -72,11 +72,9 @@ export class TimeredCounterRollerDigit extends LitElement {
     super();
 
     this.resizeObserver = new ResizeObserver(() => {
-      this.digitWidth = (
-        this.clonedRollDigitList
-          ? this.clonedRollDigitList.getBoundingClientRect()
-          : new DOMRect()
-      ).width;
+      this.digitWidth = this.clonedRollDigitList
+        ? this.clonedRollDigitList.offsetWidth
+        : 0;
     });
   }
 

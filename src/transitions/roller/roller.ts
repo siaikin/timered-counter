@@ -248,7 +248,7 @@ export class TimeredCounterRoller extends LitElement {
         result[partId][digitId] = {
           backgroundImage: color,
           backgroundClip: 'text',
-          backgroundSize: `${containerRect.width}px ${containerRect.height}px`,
+          backgroundSize: `${this.offsetWidth}px ${this.offsetHeight}px`,
           backgroundPositionX: `${-el.offsetLeft}px`,
           backgroundPositionY: `${-el.offsetTop}px`,
           backgroundRepeat: 'no-repeat',
