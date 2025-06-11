@@ -17,9 +17,7 @@ import { PartsOptions } from './mixins/counter-parts.js';
  * 根据最小精度对 from 进行优化. 避免频繁更新.
  *
  * 1. from 先会被减小到 minPrecisionMs 的整数倍.
- * 2. 如果 from 和 to 的差值不是 minPrecisionMs 的整数倍, 则再加上/减去一个 minPrecisionMs 的值. 加上或减去取决于 from 和 to 的谁更大.
- *    这相当于将 from 中小于 minPrecisionMs 的值舍入到 minPrecisionMs 的整数倍.
- * 3. 加上 to 余 minPrecisionMs 的值, 保证 from 与 to 的差值是 minPrecisionMs 的整数倍.
+ * 2. 加上 to 余 minPrecisionMs 的值, 保证 from 与 to 的差值是 minPrecisionMs 的整数倍.
  */
 function optimizeFrom(from: Date, to: Date, minPrecision: DurationPartType) {
   const minPrecisionMs = DurationPartMillisecond[minPrecision];
@@ -27,14 +25,8 @@ function optimizeFrom(from: Date, to: Date, minPrecision: DurationPartType) {
   const toTS = to.getTime();
 
   const base = fromTS - (fromTS % minPrecisionMs);
-  const offset = Math.abs(toTS - fromTS) % minPrecisionMs;
 
-  return (
-    base +
-    (offset > 0 ? (fromTS < toTS ? -1 : 1) * minPrecisionMs : 0) +
-    // 加上 deadlineDate 的余数, 消除精度误差.
-    (toTS % minPrecisionMs)
-  );
+  return base + (toTS % minPrecisionMs);
 }
 
 function toDurationInMilliseconds(value: any, minPrecision: DurationPartType) {
@@ -71,7 +63,7 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
 
   /**
    * 计数器显示的精度.
-   * 1. 当为单个值时, 表示最小精度.
+   * 1. 当为单个值时, 仅显示该精度的时间部分.
    * 2. 当为数组时, 第一个值表示最小精度, 第二个值表示最大精度.
    *
    * @default [DurationPartType.Second, DurationPartType.Day]
