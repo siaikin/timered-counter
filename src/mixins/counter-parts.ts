@@ -61,6 +61,8 @@ export declare class CounterPartsMixinInterface<
   sampleSplit(samples: V[]): V[][];
 
   sampleToString(value: V): string;
+
+  shouldRebuildParts(changedProperties: PropertyValues<this>): boolean;
 }
 
 function toChar(value: number) {
@@ -157,6 +159,21 @@ export const CounterPartsMixin = <
       return this.numberAdapter.toString(value);
     }
 
+    /**
+     * 判断是否需要重新生成 parts 数据.
+     *
+     * {@link processPartData} 依赖 {@link partsOptions} 和 {@link value} 生成数据. 因此, 仅当依赖项变化时, 需要重新生成数据.
+     *
+     * @param changedProperties
+     * @protected
+     */
+    // eslint-disable-next-line class-methods-use-this
+    shouldRebuildParts(changedProperties: PropertyValues<this>): boolean {
+      return (
+        changedProperties.has('value') || changedProperties.has('partsOptions')
+      );
+    }
+
     override willUpdate(changedProperties: PropertyValues<this>) {
       super.willUpdate(changedProperties);
 
@@ -164,14 +181,7 @@ export const CounterPartsMixin = <
         this.oldParts = this.parts;
       }
 
-      /**
-       * {@link processPartData} 依赖 {@link partsOptions} 和 {@link value} 生成数据.
-       * 当依赖项没有变化时, 不需要重新生成数据.
-       */
-      if (
-        changedProperties.has('value') ||
-        changedProperties.has('partsOptions')
-      ) {
+      if (this.shouldRebuildParts(changedProperties)) {
         this.parts = this.processPartData();
       }
 

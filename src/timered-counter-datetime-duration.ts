@@ -236,6 +236,15 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
     super.connectedCallback();
   }
 
+  override shouldRebuildParts(
+    changedProperties: PropertyValues<this>,
+  ): boolean {
+    return (
+      super.shouldRebuildParts(changedProperties) ||
+      changedProperties.has('precision')
+    );
+  }
+
   override willUpdate(_changedProperties: PropertyValues) {
     super.willUpdate(_changedProperties);
 

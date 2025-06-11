@@ -10,12 +10,14 @@ import {
   addMinutes,
   addMonths,
   addSeconds,
+  addMilliseconds,
   addYears,
   differenceInMilliseconds,
 } from 'date-fns';
 import { expect } from '@storybook/test';
 import customElementsManifest from '../../custom-elements.json' with { type: 'json' };
 import {
+  DurationPartType,
   setNumberAdapter,
   type TimeredCounter,
   TimeredCounterDatetimeDuration,
@@ -74,6 +76,7 @@ export const Basic: StoryObj<TimeredCounterDatetimeDuration> = {
     animationOptions: {
       duration: 100,
     },
+    precision: [DurationPartType.Millisecond, DurationPartType.Day],
   },
   async play(context) {
     const { canvasElement, step } = context;
@@ -82,13 +85,15 @@ export const Basic: StoryObj<TimeredCounterDatetimeDuration> = {
       '.test-target',
     ) as TimeredCounterDatetimeDuration;
 
+    const date = new Date('2025-06-10T09:43:36Z');
     const list = [
-      ...range(0, 2).map(v => [new Date(), addSeconds(new Date(), v)]),
-      ...range(0, 2).map(v => [new Date(), addMinutes(new Date(), v)]),
-      ...range(0, 2).map(v => [new Date(), addHours(new Date(), v)]),
-      ...range(0, 2).map(v => [new Date(), addDays(new Date(), v)]),
-      ...range(0, 2).map(v => [new Date(), addMonths(new Date(), v)]),
-      ...range(0, 2).map(v => [new Date(), addYears(new Date(), v)]),
+      ...range(0, 2).map(v => [date, addMilliseconds(date, v)]),
+      ...range(0, 2).map(v => [date, addSeconds(date, v)]),
+      ...range(0, 2).map(v => [date, addMinutes(date, v)]),
+      ...range(0, 2).map(v => [date, addHours(date, v)]),
+      ...range(0, 2).map(v => [date, addDays(date, v)]),
+      ...range(0, 2).map(v => [date, addMonths(date, v)]),
+      ...range(0, 2).map(v => [date, addYears(date, v)]),
     ];
 
     await step('Testing with attribute', async () => {
