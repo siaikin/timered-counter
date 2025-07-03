@@ -1,4 +1,4 @@
-import { customElement, property } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { html, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { isArray, isDate, isNullish, isString, map } from 'remeda';
@@ -12,6 +12,7 @@ import { iso8601Duration } from './utils/iso8601-duration.js';
 import { timeredCounterDatetimeStyles } from './styles/timered-counter-datetime-styles.js';
 import { parseJsonString } from './utils/parse-json-string.js';
 import { PartsOptions } from './mixins/counter-parts.js';
+import { graceDefineCustomElement } from './utils/grace-define-custom-element.js';
 
 /**
  * 根据最小精度对 from 进行优化. 避免频繁更新.
@@ -54,7 +55,6 @@ function toDurationInMilliseconds(value: any, minPrecision: DurationPartType) {
   };
 }
 
-@customElement('timered-counter-datetime-duration')
 export class TimeredCounterDatetimeDuration extends TimeredCounter {
   static styles = [...TimeredCounter.styles, timeredCounterDatetimeStyles];
 
@@ -301,3 +301,8 @@ export class TimeredCounterDatetimeDuration extends TimeredCounter {
     `;
   }
 }
+
+graceDefineCustomElement(
+  'timered-counter-datetime-duration',
+  TimeredCounterDatetimeDuration,
+);

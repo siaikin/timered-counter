@@ -1,5 +1,5 @@
 import { html, LitElement, PropertyValues } from 'lit';
-import { customElement, query, state } from 'lit/decorators.js';
+import { query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { CounterStylesMixin } from './mixins/counter-styles.js';
 import { CounterPartsMixin } from './mixins/counter-parts.js';
@@ -8,6 +8,7 @@ import { timeredCounterStyles } from './styles/timered-counter-styles.js';
 import { CounterAnimationMixin } from './mixins/counter-animation.js';
 import './transitions/roller/index.js';
 import { CounterAiraMixin } from './mixins/counter-aira.js';
+import { graceDefineCustomElement } from './utils/grace-define-custom-element.js';
 
 class TimeredCounterAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {
@@ -15,7 +16,6 @@ class TimeredCounterAnimationEvent extends Event {
   // }
 }
 
-@customElement('timered-counter')
 export class TimeredCounter extends CounterAiraMixin(
   CounterAnimationMixin(
     CounterStylesMixin(CounterPartsMixin(CounterBaseMixin(LitElement))),
@@ -103,3 +103,5 @@ export class TimeredCounter extends CounterAiraMixin(
     );
   }
 }
+
+graceDefineCustomElement('timered-counter', TimeredCounter);

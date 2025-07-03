@@ -1,12 +1,12 @@
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { html, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { isBoolean, isNullish } from 'remeda';
 import { TimeredCounter } from './timered-counter.js';
 import { AvailableNumberAdapterValueType } from './number-adapter/index.js';
 import { timeredCounterNumberStyles } from './styles/timered-counter-number-styles.js';
+import { graceDefineCustomElement } from './utils/grace-define-custom-element.js';
 
-@customElement('timered-counter-number')
 export class TimeredCounterNumber extends TimeredCounter {
   static styles = [...TimeredCounter.styles, timeredCounterNumberStyles];
 
@@ -140,3 +140,5 @@ export class TimeredCounterNumber extends TimeredCounter {
     super.willUpdate(_changedProperties);
   }
 }
+
+graceDefineCustomElement('timered-counter-number', TimeredCounterNumber);

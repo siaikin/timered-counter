@@ -1,12 +1,13 @@
 import { html, LitElement, PropertyValues } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import { customElement, property, query } from 'lit/decorators.js';
+import { property, query } from 'lit/decorators.js';
 import { StyleInfo, styleMap } from 'lit/directives/style-map.js';
 import { isNumber, values } from 'remeda';
 import { PartData } from '../../types/group.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import './roller-digit.js';
 import { rollerStyles } from './styles.js';
+import { graceDefineCustomElement } from '../../utils/grace-define-custom-element.js';
 
 class RollerAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {
@@ -14,7 +15,6 @@ class RollerAnimationEvent extends Event {
   // }
 }
 
-@customElement('timered-counter-roller')
 export class TimeredCounterRoller extends LitElement {
   static styles = [rollerStyles];
 
@@ -267,3 +267,5 @@ export class TimeredCounterRoller extends LitElement {
     return result;
   }
 }
+
+graceDefineCustomElement('timered-counter-roller', TimeredCounterRoller);

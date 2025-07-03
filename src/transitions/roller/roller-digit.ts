@@ -11,11 +11,12 @@ import {
   range,
 } from 'remeda';
 import { classMap } from 'lit/directives/class-map.js';
-import { customElement, property, query, state } from 'lit/decorators.js';
+import { property, query, state } from 'lit/decorators.js';
 import { PartPreprocessedData } from '../../utils/preprocess-part-data.js';
 import { PartDataDigit } from '../../types/group.js';
 import { rollerDigitStyles } from './styles.js';
 import * as EasingFunctions from '../../easing/penner-easing-functions.js';
+import { graceDefineCustomElement } from '../../utils/grace-define-custom-element.js';
 
 class RollerDigitAnimationEvent extends Event {
   // constructor(type: string, eventInitDict?: EventInit) {
@@ -23,7 +24,6 @@ class RollerDigitAnimationEvent extends Event {
   // }
 }
 
-@customElement('timered-counter-roller-digit')
 export class TimeredCounterRollerDigit extends LitElement {
   static styles = [rollerDigitStyles];
 
@@ -305,3 +305,8 @@ export class TimeredCounterRollerDigit extends LitElement {
     );
   }
 }
+
+graceDefineCustomElement(
+  'timered-counter-roller-digit',
+  TimeredCounterRollerDigit,
+);

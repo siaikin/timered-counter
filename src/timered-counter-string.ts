@@ -1,10 +1,10 @@
-import { customElement } from 'lit/decorators.js';
 import { isEmpty, isString } from 'remeda';
 import { TimeredCounter } from './timered-counter.js';
 import { timeredCounterStringStyles } from './styles/timered-counter-string-styles.js';
 import { anyBase } from './utils/any-base.js';
 import { PartsOptions } from './mixins/counter-parts.js';
 import { AvailableNumberAdapterValueType } from './number-adapter/index.js';
+import { graceDefineCustomElement } from './utils/grace-define-custom-element.js';
 
 /**
  * 替换一些特定的字符.
@@ -14,7 +14,6 @@ const REPLACED_CHARS: Record<string, string> = {
   ' ': '\xa0', // &nbsp;
 };
 
-@customElement('timered-counter-string')
 export class TimeredCounterString extends TimeredCounter {
   static styles = [...TimeredCounter.styles, timeredCounterStringStyles];
 
@@ -181,3 +180,5 @@ export class TimeredCounterString extends TimeredCounter {
     super.connectedCallback();
   }
 }
+
+graceDefineCustomElement('timered-counter-string', TimeredCounterString);
