@@ -72,6 +72,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@semantic-release/git": "^10.0.1",
     "@storybook/addon-a11y": "^8.5.0",
     "@storybook/addon-coverage": "^1.0.5",
     "@storybook/addon-essentials": "^8.5.0",
