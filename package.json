@@ -10,21 +10,9 @@
   "jsdelivr": "dist/timered-counter.global.js",
   "exports": {
     ".": "./dist/src/index.js",
-    "./timered-counter.js": "./dist/src/timered-counter.js",
-    "./timered-counter-datetime-duration": "./dist/src/timered-counter-datetime-duration.js",
-    "./timered-counter-datetime-duration.js": "./dist/src/timered-counter-datetime-duration.js",
-    "./timered-counter-string": "./dist/src/timered-counter-string.js",
-    "./timered-counter-string.js": "./dist/src/timered-counter-string.js",
-    "./timered-counter-number": "./dist/src/timered-counter-number.js",
-    "./timered-counter-number.js": "./dist/src/timered-counter-number.js",
     "./vue": "./dist/src/wrappers/vue/index.js",
-    "./vue/timered-counter-datetime-duration": "./dist/src/wrappers/vue/timered-counter-datetime-duration.js",
-    "./vue/timered-counter-datetime-duration.js": "./dist/src/wrappers/vue/timered-counter-datetime-duration.js",
-    "./vue/timered-counter-string": "./dist/src/wrappers/vue/timered-counter-string.js",
-    "./vue/timered-counter-string.js": "./dist/src/wrappers/vue/timered-counter-string.js",
-    "./vue/timered-counter-number": "./dist/src/wrappers/vue/timered-counter-number.js",
-    "./vue/timered-counter-number.js": "./dist/src/wrappers/vue/timered-counter-number.js",
-    "./*": "./*"
+    "./vue/*": "./dist/src/wrappers/vue/*",
+    "./*": "./dist/src/*"
   },
   "files": [
     "dist",

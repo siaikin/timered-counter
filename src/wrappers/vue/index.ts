@@ -24,8 +24,8 @@ export default TimeredCounterPlugin;
 
 declare module 'vue' {
   interface GlobalComponents {
-    TimeredCounterNumber: typeof import('timered-counter/vue').TimeredCounterNumber;
-    TimeredCounterDatetimeDuration: typeof import('timered-counter/vue').TimeredCounterDatetimeDuration;
-    TimeredCounterString: typeof import('timered-counter/vue').TimeredCounterString;
+    TimeredCounterNumber: typeof TimeredCounterNumber;
+    TimeredCounterDatetimeDuration: typeof TimeredCounterDatetimeDuration;
+    TimeredCounterString: typeof TimeredCounterString;
   }
 }
