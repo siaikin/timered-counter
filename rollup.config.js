@@ -55,6 +55,7 @@ const umdOutput = [
       name: 'TimeredCounter',
       sourcemap: true,
     },
+    external: ['decimal.js', 'grapheme-splitter'],
     preserveEntrySignatures: 'strict',
   },
   {
@@ -95,6 +96,7 @@ const esmOutput = [
         sourcemap: true,
       },
     ],
+    external: ['decimal.js', 'grapheme-splitter'],
     preserveEntrySignatures: 'strict',
   },
   {

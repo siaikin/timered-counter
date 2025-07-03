@@ -35,7 +35,7 @@ const meta: Meta = {
     controls: { expanded: true },
   },
   beforeEach: () => {
-    TimeredCounterAdapter.registryAdapter(DecimalJsNumberAdapter);
+    TimeredCounterAdapter.registerAdapter(DecimalJsNumberAdapter);
     TimeredCounterAdapter.setNumberAdapter('decimal.js');
   },
 };
