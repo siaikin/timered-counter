@@ -2,7 +2,7 @@
   "name": "timered-counter",
   "description": "Make the value change more vivid and natural",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "1.3.0-beta.2",
   "type": "module",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
@@ -10,16 +10,13 @@
   "jsdelivr": "dist/timered-counter.global.js",
   "exports": {
     ".": "./dist/src/index.js",
-    "./timered-counter.js": "./dist/src/timered-counter.js",
-    "./timered-counter-datetime-duration": "./dist/src/timered-counter-datetime-duration.js",
-    "./timered-counter-datetime-duration.js": "./dist/src/timered-counter-datetime-duration.js",
-    "./timered-counter-string": "./dist/src/timered-counter-string.js",
-    "./timered-counter-string.js": "./dist/src/timered-counter-string.js",
-    "./timered-counter-number": "./dist/src/timered-counter-number.js",
-    "./timered-counter-number.js": "./dist/src/timered-counter-number.js"
+    "./vue": "./dist/src/wrappers/vue/index.js",
+    "./vue/*": "./dist/src/wrappers/vue/*",
+    "./*": "./dist/src/*"
   },
   "files": [
     "dist",
+    "typings",
     "custom-elements.json"
   ],
   "types": "dist/src/index.d.ts",
@@ -75,6 +72,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@semantic-release/git": "^10.0.1",
     "@storybook/addon-a11y": "^8.5.0",
     "@storybook/addon-coverage": "^1.0.5",
     "@storybook/addon-essentials": "^8.5.0",
@@ -136,6 +134,7 @@
       "max-classes-per-file": "off",
       "wc/guard-super-call": "off",
       "no-shadow": "off",
+      "no-continue": "off",
       "@typescript-eslint/no-shadow": [
         "error"
       ]
@@ -154,5 +153,13 @@
   "optionalDependencies": {
     "decimal.js": "^10.4.3",
     "grapheme-splitter": "^1.0.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.17"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
   }
 }

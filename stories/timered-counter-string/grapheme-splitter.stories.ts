@@ -35,8 +35,8 @@ const meta: Meta = {
     controls: { expanded: true },
   },
   beforeEach: () => {
-    TimeredCounterAdapter.registryAdapter(DecimalJsNumberAdapter);
-    TimeredCounterAdapter.registryAdapter(GraphemeSplitterStringAdapter);
+    TimeredCounterAdapter.registerAdapter(DecimalJsNumberAdapter);
+    TimeredCounterAdapter.registerAdapter(GraphemeSplitterStringAdapter);
 
     TimeredCounterAdapter.setNumberAdapter('decimal.js');
     TimeredCounterAdapter.setStringAdapter('grapheme-splitter');

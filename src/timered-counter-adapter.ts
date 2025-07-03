@@ -133,7 +133,7 @@ export class TimeredCounterAdapter {
    *
    * 具体示例请查看 {@link GraphemeSplitterAdapter} or {@link DecimalJsAdapter}.
    */
-  static registryAdapter(adapter: {
+  static registerAdapter(adapter: {
     register: (counterAdapter: typeof TimeredCounterAdapter) => void;
   }) {
     adapter.register(this);
@@ -162,4 +162,10 @@ export function registerStringAdapter(
   ...args: Parameters<(typeof TimeredCounterAdapter)['registerStringAdapter']>
 ) {
   TimeredCounterAdapter.registerStringAdapter(...args);
+}
+
+export function registerAdapter(
+  ...args: Parameters<(typeof TimeredCounterAdapter)['registerAdapter']>
+) {
+  TimeredCounterAdapter.registerAdapter(...args);
 }
